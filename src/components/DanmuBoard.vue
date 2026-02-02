@@ -2,7 +2,7 @@
     <view class="danmu-board">
         <view class="content-wrapper">
             <text class="danmu-text" :style="danmuStyle">{{ props.text
-            }}</text>
+                }}</text>
         </view>
     </view>
 </template>
@@ -37,5 +37,27 @@ const danmuStyle = computed(() => {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+
+.content-wrapper {
+    width: 100%;
+    overflow: hidden;
+    animation: scroll-left 5s linear infinite;
+    will-change: transform;
+}
+
+.danmu-text {
+    white-space: nowrap;
+}
+
+@keyframes scroll-left {
+    0% {
+        transform: translate(750rpx);
+    }
+
+    100% {
+        transform: translate(-160%);
+    }
 }
 </style>

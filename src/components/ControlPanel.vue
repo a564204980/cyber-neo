@@ -24,8 +24,9 @@
     width: 100%;
     height: 100%;
     display: flex;
-    align-items: center;
     justify-content: center;
+    padding: 40rpx 0;
+    box-sizing: border-box;
     background: #171717;
     border-top-left-radius: 80rpx;
     border-top-right-radius: 80rpx;
