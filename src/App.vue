@@ -17,7 +17,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@/static/css/global.scss";
+@use "@/static/css/global.scss" as *;
 
 page {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;

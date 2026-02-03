@@ -1,8 +1,10 @@
+@use "./font.scss" as *;
+
 .flex {
   display: flex;
 }
 
-.align-center {
+.items-center {
   align-items: center;
 }
 
@@ -18,4 +20,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.direction-column {
+  flex-direction: column;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.h-full {
+  height: 100%;
 }
