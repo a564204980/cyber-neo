@@ -27,15 +27,15 @@
 </template>
 
 <script setup lang="ts">
-import StyleSettings from "./settings/StyleSettings.vue"
 import AnimSettings from "./settings/AnimSettings.vue"
+import StyleSettings from "./settings/StyleSettings.vue"
 import EffectSettings from "./settings/EffectSettings.vue"
 import { ref } from "vue"
 
 const tabs = [
-    { label: "样式", value: "style" },
-    { label: "动画", value: "anim" },
-    { label: "特效", value: "effect" }
+    { label: "样式", value: "style", },
+    { label: "动画", value: "anim", },
+    { label: "特效", value: "effect", }
 ]
 
 const activeTabIndex = ref<number>(0)
@@ -53,6 +53,7 @@ const onSwiperChange = (e: any) => {
 <style lang="scss" scoped>
 .panel-tabs {
     position: relative;
+    border-bottom: 2rpx solid #202025;
 }
 
 .panel-tab {
