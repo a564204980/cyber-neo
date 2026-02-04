@@ -141,7 +141,6 @@ const onDragEnd = (e: TouchEvent) => {
   background: #171717;
   border-top-left-radius: 70rpx;
   border-top-right-radius: 70rpx;
-  padding: 0 40rpx;
   box-sizing: border-box;
 }
 

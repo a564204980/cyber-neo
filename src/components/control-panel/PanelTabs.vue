@@ -54,6 +54,7 @@ const onSwiperChange = (e: any) => {
 .panel-tabs {
     position: relative;
     border-bottom: 2rpx solid #202025;
+    padding: 0 40rpx;
 }
 
 .panel-tab {
@@ -72,7 +73,8 @@ const onSwiperChange = (e: any) => {
 
 .tab-indicator {
     position: absolute;
-    width: calc(100% / 3);
+    left: 40rpx;
+    width: calc((100% - 80rpx) / 3);
     height: 100%;
     background: #ff007f;
     transition: transform 0.3s ease;

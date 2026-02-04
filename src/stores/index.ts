@@ -1,0 +1,1 @@
+export { useStyleStore } from "./style";

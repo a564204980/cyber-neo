@@ -2,26 +2,27 @@
     <view class="danmu-board">
         <view class="content-wrapper flex items-center" :style="wrapperStyle">
             <text v-if="showDanmu" class="danmu-text" :style="danmuStyle">{{ props.text
-                }}</text>
+            }}</text>
         </view>
     </view>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch, nextTick } from 'vue';
+import { useStyleStore } from '@/stores'
+
+const store = useStyleStore()
 
 const showDanmu = ref(true);
 
 interface Props {
     text?: string
-    textColor?: string
     fontSize?: number
     rotation?: number // 旋转角度
 }
 
 const props = withDefaults(defineProps<Props>(), {
     text: '我是弹幕',
-    textColor: '#fff',
     fontSize: 100,
     rotation: 0
 })
@@ -46,9 +47,11 @@ const wrapperStyle = computed(() => {
     }
 })
 
+// 直接使用 store 中的颜色，实现全局同步
 const danmuStyle = computed(() => {
+    console.log("这是颜色", store.currentColor.color)
     return {
-        color: props.textColor,
+        color: store.currentColor.color,
         fontSize: props.fontSize + 'rpx'
     }
 })

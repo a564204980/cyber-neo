@@ -16,9 +16,9 @@
             </view>
         </view>
 
-        <Tag @tagClick="onTagClick" />
+        <Tag @tagClick="onTagClick" class="tag-container" />
 
-        <PanelTabs />
+        <PanelTabs class="panel-tabs" />
     </view>
 </template>
 
@@ -68,6 +68,7 @@ const onTagClick = (item: { label: string }) => {
 
 .input-area {
     box-sizing: border-box;
+    padding: 0 40rpx;
 }
 
 .input-area-head-left {
@@ -97,5 +98,9 @@ const onTagClick = (item: { label: string }) => {
 
 .input-area-body-input {
     color: #fff;
+}
+
+.tag-container {
+    padding: 0 40rpx;
 }
 </style>
