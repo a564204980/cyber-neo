@@ -1,39 +1,68 @@
 <template>
-    <view>
-        <view class="style-settings-wrapper">
-            <view class="flex items-center justify-between style-settings-container">
-                <view class="active-bg" :style="{ transform: `translateX(${activeIndex * 100}%)` }"></view>
-                <view v-for="(item, index) in list" :key="item.value" @click="onItemClick(index)"
-                    class="style-item font-bold " :class="index === activeIndex ? 'active' : 'text-secondary'">{{
-                        item.label
-                    }}
-                </view>
-            </view>
-        </view>
-
-        <view class="color-panel-container">
-            <view class="font-bold color-panel-title">颜色面板</view>
-            <scroll-view scroll-x enable-flex scroll-with-animation class="color-panel-scroll-wrapper">
-                <view class="color-panel-scroll flex">
-                    <view v-for="(item, index) in colorPanelList" :key="index" class="color-panel-item"
-                        @click="onColorItemClick(index)">
-                        <view class="color-panel-orgin" :style="{ backgroundColor: item.color }"
-                            :class="index === activeColorIndex ? 'active' : ''"></view>
-                        <view class="color-panel-text">{{ item.label }}</view>
+    <view class="style-settings">
+        <scroll-view scroll-y class="style-settings-scroll">
+            <view class="style-settings-wrapper">
+                <view class="flex items-center justify-between style-settings-container">
+                    <view class="active-bg" :style="{ transform: `translateX(${activeIndex * 100}%)` }"></view>
+                    <view v-for="(item, index) in list" :key="item.value" @click="onItemClick(index)"
+                        class="style-item font-bold " :class="index === activeIndex ? 'active' : 'text-secondary'">{{
+                            item.label
+                        }}
                     </view>
                 </view>
-            </scroll-view>
-        </view>
+            </view>
 
-        <view class="size-panel-container">
-            <view class="font-bold size-panel-title">文字大小</view>
-            <slider value="50" @change="sliderChange" show-value />
-        </view>
+            <view class="color-panel-container">
+                <view class="font-bold color-panel-title">颜色面板</view>
+                <ColorPicker :colorPanelList="colorPanelList" :activeColorIndex="activeColorIndex"
+                    @colorClick="onColorItemClick" @customColorClick="onCustomColorClick" />
+            </view>
+
+            <view class="size-panel-container">
+                <view class="font-bold size-panel-title">文字大小</view>
+                <Slider @change="onSizeChange" @update:modelValue="onSizeChange" :minSize="store.MIN_FONT_SIZE"
+                    :maxSize="store.MAX_FONT_SIZE" />
+            </view>
+
+            <view class="stroke-panel-container">
+                <view class="font-bold stroke-panel-title flex items-center justify-between">
+                    <view>描边</view>
+                    <switch :checked="isStrokeEnabled" @change="handleStrokeChange" color="#ff007f"
+                        style="transform:scale(0.7)" />
+                </view>
+                <view class="stroke-panel-color-config-container" :class="{ 'is-show': isStrokeEnabled }">
+                    <view class="stroke-panel-color-container">
+                        <view class="stroke-panel-color-title">描边颜色</view>
+                        <ColorPicker :colorPanelList="colorPanelList" :activeColorIndex="strokeColorIndex"
+                            @colorClick="onStrokeColorClick" :size="60" />
+                    </view>
+
+                    <view class="stroke-panel-config-container">
+                        <view class="stroke-panel-config-title">粗细</view>
+                        <Slider @change="onStrokeWidthChange" @update:modelValue="onStrokeWidthChange"
+                            :minSize="store.MIN_STROKE_WIDTH" :maxSize="store.MAX_STROKE_WIDTH"
+                            :model-value="store.strokeWidth" />
+                    </view>
+
+                    <view class="stroke-panel-config-container">
+                        <view class="stroke-panel-config-title">透明度</view>
+                        <Slider @change="onStrokeOpacityChange" @update:modelValue="onStrokeOpacityChange"
+                            :minSize="store.MIN_STROKE_WIDTH" :maxSize="store.MAX_STROKE_WIDTH"
+                            :model-value="store.strokeWidth" />
+                    </view>
+                </view>
+            </view>
+        </scroll-view>
+
+        <Popup :visible="visible" />
     </view>
-
 </template>
 
 <script setup lang="ts">
+import Popup from '@/components/common/Popup.vue';
+import Slider from '@/components/common/Slider.vue';
+import ColorPicker from '@/components/control-panel/common/ColorPicker.vue';
+
 import { ref } from 'vue';
 import { useStyleStore } from '@/stores'
 
@@ -45,8 +74,13 @@ const list = [
     { label: "画布样式", value: "canvas" }
 ]
 const colorPanelList = store.colorList
+
+const visible = ref(false)
 const activeIndex = ref<number>(0)
 const activeColorIndex = ref<number>(store.activeColorIndex)
+const isStrokeEnabled = ref<boolean>(store.currentTextStyle.enabledStroke)
+const strokeColorIndex = ref<number>(store.currentTextStyle.strokeColorIndex)
+
 
 const onItemClick = (index: number) => {
     activeIndex.value = index
@@ -57,13 +91,58 @@ const onColorItemClick = (index: number) => {
     activeColorIndex.value = index
 }
 
-const sliderChange = (e: any) => {
-    console.log(e.detail.value)
+const onSizeChange = (value: number) => {
+    store.setSize(value)
 }
+
+/**
+ * 描边开关
+ * @param e 
+ */
+const handleStrokeChange = (e: any) => {
+    isStrokeEnabled.value = e.detail.value
+    store.setStrokeEnabled(e.detail.value)
+}
+
+/**
+ * 描边颜色点击
+ * @param index 颜色索引
+ */
+const onStrokeColorClick = (index: number) => {
+    store.setStrokeColor(index)
+    strokeColorIndex.value = index
+}
+
+/**
+ * 描边粗细改变
+ * @param value 描边粗细
+ */
+const onStrokeWidthChange = (value: number) => {
+    store.setStrokeWidth(value)
+}
+
+const onStrokeOpacityChange = (value: number) => {
+    store.setStrokeOpacity(value)
+}
+
+
+const onCustomColorClick = () => {
+    visible.value = true
+    console.log("点击了啊")
+}
+
 
 </script>
 
 <style lang="scss" scoped>
+.style-settings {
+    height: 100%;
+}
+
+.style-settings-scroll {
+    height: 100%;
+}
+
 .style-settings-wrapper {
     padding: 0 40rpx;
 }
@@ -103,69 +182,47 @@ const sliderChange = (e: any) => {
 }
 
 .color-panel-container,
-.size-panel-container {
-    margin: 20rpx;
+.size-panel-container,
+.stroke-panel-container {
+    margin: 40rpx;
 }
 
 .color-panel-title,
-.size-panel-title {
-    font-size: 24rpx;
+.size-panel-title,
+.stroke-panel-title {
+    font-size: 30rpx;
     margin: 0 20rpx;
 }
 
+.stroke-panel-config-container {
+    margin: 10rpx 30rpx;
+    padding: 10rpx;
+    border-left: 4rpx solid #561a3e;
+}
 
+.stroke-panel-config-title {
+    margin-left: 18rpx;
+    font-size: 24rpx;
+    color: rgba(255, 255, 255, 0.6);
+}
 
-.color-panel-scroll {
-    padding-top: 30rpx;
-    position: relative;
-    /* 为伪元素提供定位上下文 */
+.stroke-panel-color-config-container {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.3s ease, opacity 0.3s ease
+}
 
-    /* 使用伪元素撑开右侧空间 */
-    &::after {
-        content: '';
-        display: block;
-        width: 30rpx;
-        flex-shrink: 0;
+.stroke-panel-color-config-container.is-show {
+    max-height: 800rpx;
+    opacity: 1;
+}
+
+.stroke-panel-color-container {
+    .stroke-panel-color-title {
+        margin-left: 18rpx;
+        font-size: 24rpx;
+        color: rgba(255, 255, 255, 0.6);
     }
-}
-
-.color-panel-item {
-    flex-shrink: 0;
-    margin: 0 10rpx;
-
-    &:first-child {
-        margin-left: 40rpx;
-    }
-}
-
-
-
-.color-panel-orgin {
-    width: 80rpx;
-    height: 80rpx;
-    border-radius: 50%;
-    position: relative;
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.color-panel-orgin.active {
-    transform: scale(1.15);
-    border: 6rpx solid #fff;
-    box-sizing: border-box;
-
-    box-shadow:
-        0 0 10rpx rgba(255, 255, 255, 0.6),
-        0 0 30rpx rgba(255, 255, 255, 0.3),
-        inset 0 0 10rpx rgba(255, 255, 255, 0.1);
-
-    // 回弹效果
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-
-.color-panel-text {
-    font-size: 22rpx;
-    text-align: center;
-    margin-top: 4rpx;
 }
 </style>

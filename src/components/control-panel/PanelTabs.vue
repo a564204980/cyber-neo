@@ -1,5 +1,5 @@
 <template>
-    <view>
+    <view class="panel-tabs-wrapper">
         <view class="flex items-center text-secondary panel-tabs">
             <view v-for="(tab, index) in tabs" :key="tab.value"
                 class="panel-tab font-bold flex items-center justify-center" @click="onTabClick(index)"
@@ -51,6 +51,13 @@ const onSwiperChange = (e: any) => {
 </script>
 
 <style lang="scss" scoped>
+.panel-tabs-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
 .panel-tabs {
     position: relative;
     border-bottom: 2rpx solid #202025;
@@ -81,6 +88,6 @@ const onSwiperChange = (e: any) => {
 }
 
 .swiper-container {
-    height: 600rpx;
+    height: 500rpx
 }
 </style>

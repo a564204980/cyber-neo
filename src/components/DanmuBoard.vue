@@ -2,7 +2,7 @@
     <view class="danmu-board">
         <view class="content-wrapper flex items-center" :style="wrapperStyle">
             <text v-if="showDanmu" class="danmu-text" :style="danmuStyle">{{ props.text
-            }}</text>
+                }}</text>
         </view>
     </view>
 </template>
@@ -17,13 +17,11 @@ const showDanmu = ref(true);
 
 interface Props {
     text?: string
-    fontSize?: number
     rotation?: number // 旋转角度
 }
 
 const props = withDefaults(defineProps<Props>(), {
     text: '我是弹幕',
-    fontSize: 100,
     rotation: 0
 })
 
@@ -47,14 +45,37 @@ const wrapperStyle = computed(() => {
     }
 })
 
-// 直接使用 store 中的颜色，实现全局同步
 const danmuStyle = computed(() => {
-    console.log("这是颜色", store.currentColor.color)
-    return {
-        color: store.currentColor.color,
-        fontSize: props.fontSize + 'rpx'
+    const style: any = {
+        color: store.currentTextStyle.color,
+        fontSize: store.currentTextStyle.fontSize + 'rpx',
     }
+    const { enabledStroke, strokeColor, strokeWidth, strokeOpacity } = store.currentTextStyle
+    if (enabledStroke && strokeWidth > 0) {
+        // 将 hex 颜色转换为 rgba
+        const rgbaColor = hexToRgba(strokeColor, strokeOpacity)
+
+        style.textShadow = `
+            ${strokeWidth}rpx ${strokeWidth}rpx 0 ${rgbaColor},
+            ${strokeWidth}rpx ${-strokeWidth}rpx 0 ${rgbaColor},
+            ${-strokeWidth}rpx ${strokeWidth}rpx 0 ${rgbaColor},
+            ${-strokeWidth}rpx ${-strokeWidth}rpx 0 ${rgbaColor}
+        `
+    }
+    return style
 })
+
+const hexToRgba = (hex: string, opacity: number): string => {
+    // 去掉 # 号
+    hex = hex.replace('#', '')
+
+    // 解析 RGB 值
+    const r = parseInt(hex.substring(0, 2), 16)
+    const g = parseInt(hex.substring(2, 4), 16)
+    const b = parseInt(hex.substring(4, 6), 16)
+
+    return `rgba(${r}, ${g}, ${b}, ${opacity})`
+}
 
 watch(() => props.text, async () => {
     showDanmu.value = false;

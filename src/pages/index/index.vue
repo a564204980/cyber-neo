@@ -130,6 +130,7 @@ const onDragEnd = (e: TouchEvent) => {
   align-items: center;
   justify-content: center;
   padding-top: 170rpx;
+
 }
 
 .control-panel {
@@ -137,7 +138,7 @@ const onDragEnd = (e: TouchEvent) => {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 70%;
+  height: 80%;
   background: #171717;
   border-top-left-radius: 70rpx;
   border-top-right-radius: 70rpx;
