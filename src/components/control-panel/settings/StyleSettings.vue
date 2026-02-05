@@ -54,19 +54,18 @@
             </view>
         </scroll-view>
 
-        <Popup :visible="visible" />
     </view>
 </template>
 
 <script setup lang="ts">
-import Popup from '@/components/common/Popup.vue';
 import Slider from '@/components/common/Slider.vue';
 import ColorPicker from '@/components/control-panel/common/ColorPicker.vue';
 
 import { ref } from 'vue';
-import { useStyleStore } from '@/stores'
+import { useStyleStore, usePopupStore } from '@/stores'
 
 const store = useStyleStore()
+const popupStore = usePopupStore()
 
 
 const list = [
@@ -75,7 +74,6 @@ const list = [
 ]
 const colorPanelList = store.colorList
 
-const visible = ref(false)
 const activeIndex = ref<number>(0)
 const activeColorIndex = ref<number>(store.activeColorIndex)
 const isStrokeEnabled = ref<boolean>(store.currentTextStyle.enabledStroke)
@@ -127,8 +125,10 @@ const onStrokeOpacityChange = (value: number) => {
 
 
 const onCustomColorClick = () => {
-    visible.value = true
-    console.log("点击了啊")
+    popupStore.open('ColorPicker', {
+
+
+    })
 }
 
 

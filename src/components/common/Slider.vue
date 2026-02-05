@@ -2,16 +2,16 @@
     <view class="custom-slider">
         <!-- 容器 -->
         <view class="slider-container">
-            <!-- 轨道 -->
-            <view class="slider-track" @tap.stop="handleTrackClick">
-                <!-- 填充 -->
-                <view class="slider-fill" :style="{ width: fillWidth, backgroundColor: backgroundColor }"></view>
+            <!-- 轨道（应用渐变色背景） -->
+            <view class="slider-track" @tap.stop="handleTrackClick" :style="{ background: backgroundColor }">
+                <!-- 填充（用半透明遮罩表示未选中区域） -->
+                <view class="slider-fill" :style="{ width: `calc(100% - ${fillWidth})` }"></view>
             </view>
             <!-- 滑块 -->
             <view class="slider-thumb" @touchstart.stop="handleTouchStart" @touchend.stop="handleTouchEnd"
                 @touchmove.stop.prevent="handleTouchMove" :style="{ left: thumbPosition }"></view>
         </view>
-        <view class="value-display">{{ currentValue }}</view>
+        <view class="value-display" v-if="showValue">{{ currentValue }}</view>
     </view>
 </template>
 
@@ -33,6 +33,7 @@ interface Props {
     backgroundColor?: string // 轨道颜色
     minSize?: number // 最小值
     maxSize?: number // 最大值
+    showValue?: boolean; // 是否显示当前值
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -41,7 +42,8 @@ const props = withDefaults(defineProps<Props>(), {
     activeColor: `#ff007f`,
     backgroundColor: `linear-gradient(90deg, #FF69B4 0%, #ff007f 100%)`,
     minSize: 0,
-    maxSize: 100
+    maxSize: 100,
+    showValue: true
 })
 
 const emit = defineEmits<{
@@ -166,7 +168,6 @@ onMounted(() => {
     position: relative;
     width: 100%;
     height: 12rpx;
-    background-color: #333;
     border-radius: 50rpx;
     overflow: hidden;
 }
@@ -176,8 +177,7 @@ onMounted(() => {
     left: 0;
     top: 0;
     height: 100%;
-    background: linear-gradient(90deg, #FF69B4 0%, #ff007f 100%);
-    box-shadow: 0 0 10rpx rgba(255, 20, 147, 0.5);
+    // box-shadow: 0 0 10rpx rgba(255, 20, 147, 0.5);
     // background-color: #ff007f;
 }
 

@@ -1,22 +1,29 @@
 <template>
-  <CustomNavBar :nav-style="navStyle" />
-  <view class="container">
+  <view>
+    <CustomNavBar :nav-style="navStyle" />
+    <view class="container">
 
-    <view class="preview-area"
-      :style="{ height: (100 - panelHeightPercent - 10) + '%', transition: isDragging ? 'none' : 'height 0.2s' }">
-      <DanmuBoard class="w-full h-full" :text="danmuText" :rotation="danmuRotation" />
-    </view>
-
-    <view class="control-panel"
-      :style="{ height: panelHeightPercent - 3 + '%', transition: isDragging ? 'none' : 'height 0.2s' }">
-      <view class="drag-block-container w-full flex justify-center items-center direction-column"
-        @touchstart="onDragStart" @touchmove.stop.prevent="onDragMove" @touchend="onDragEnd">
-        <view class="drag-block"></view>
-        <view class="text-secondary ">下拉预览</view>
+      <view class="preview-area"
+        :style="{ height: (100 - panelHeightPercent - 10) + '%', transition: isDragging ? 'none' : 'height 0.2s' }">
+        <DanmuBoard class="w-full h-full" :text="danmuText" :rotation="danmuRotation" />
       </view>
-      <ControlPanel @send="onSend" :value="danmuText" />
 
+      <view class="control-panel"
+        :style="{ height: panelHeightPercent - 3 + '%', transition: isDragging ? 'none' : 'height 0.2s' }">
+        <view class="drag-block-container w-full flex justify-center items-center direction-column"
+          @touchstart="onDragStart" @touchmove.stop.prevent="onDragMove" @touchend="onDragEnd">
+          <view class="drag-block"></view>
+          <view class="text-secondary ">下拉预览</view>
+        </view>
+        <ControlPanel @send="onSend" :value="danmuText" />
+      </view>
     </view>
+
+    <!-- <uni-popup ref="popup" background-color="#fff">
+      <text>这是内容</text>
+    </uni-popup> -->
+
+    <GlobalPopup />
   </view>
 </template>
 
@@ -24,9 +31,11 @@
 import DanmuBoard from '@/components/DanmuBoard.vue';
 import CustomNavBar from '@/components/CustomNavBar.vue';
 import ControlPanel from '@/components/control-panel/ControlPanel.vue';
+import GlobalPopup from '@/components/common/GlobalPopup.vue';
 
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
+const popupRef = ref()
 const danmuText = ref<string>()
 const panelHeightPercent = ref<number>(70) // 定义面板的初始高度比例
 const startY = ref<number>(0) // 记录触摸开始时的Y坐标
@@ -114,6 +123,10 @@ const onDragEnd = (e: TouchEvent) => {
 }
 
 
+const popup = ref()
+onMounted(() => {
+  popup.value.open()
+})
 </script>
 
 <style scoped>
