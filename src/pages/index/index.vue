@@ -19,11 +19,7 @@
       </view>
     </view>
 
-    <!-- <uni-popup ref="popup" background-color="#fff">
-      <text>这是内容</text>
-    </uni-popup> -->
-
-    <GlobalPopup />
+    <GlobalPopup ref="popupRef" />
   </view>
 </template>
 
@@ -32,8 +28,10 @@ import DanmuBoard from '@/components/DanmuBoard.vue';
 import CustomNavBar from '@/components/CustomNavBar.vue';
 import ControlPanel from '@/components/control-panel/ControlPanel.vue';
 import GlobalPopup from '@/components/common/GlobalPopup.vue';
-
+import { usePopupStore } from '@/stores';
 import { computed, onMounted, ref } from 'vue';
+
+const popupStore = usePopupStore()
 
 const popupRef = ref()
 const danmuText = ref<string>()
@@ -122,10 +120,8 @@ const onDragEnd = (e: TouchEvent) => {
   }
 }
 
-
-const popup = ref()
 onMounted(() => {
-  popup.value.open()
+  popupStore.setPopupRef(popupRef.value.popupRef)
 })
 </script>
 

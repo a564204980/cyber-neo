@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import { ref } from 'vue';
 import { getRects } from "@/utils"
 import { getCurrentInstance } from 'vue';
@@ -65,6 +65,12 @@ const fillWidth = computed(() => {
 
 const thumbPosition = computed(() => {
     return fillWidth.value
+})
+
+watch(() => props.modelValue, (newValue) => {
+    if (newValue !== currentValue.value) {
+        currentValue.value = newValue
+    }
 })
 
 /**

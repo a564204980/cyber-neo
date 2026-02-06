@@ -19,7 +19,7 @@ export const usePopupStore = defineStore("popup", () => {
    * @param viewName 要显示的内容类型
    * @param data 传递的数据
    */
-  const open = (viewName: string, data: any) => {
+  const open = (viewName: string, data: any = {}) => {
     if (!popupRef.value) return;
 
     currentView.value = viewName;

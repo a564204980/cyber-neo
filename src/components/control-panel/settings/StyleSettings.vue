@@ -63,6 +63,7 @@ import ColorPicker from '@/components/control-panel/common/ColorPicker.vue';
 
 import { ref } from 'vue';
 import { useStyleStore, usePopupStore } from '@/stores'
+import { storeToRefs } from 'pinia';
 
 const store = useStyleStore()
 const popupStore = usePopupStore()
@@ -75,9 +76,10 @@ const list = [
 const colorPanelList = store.colorList
 
 const activeIndex = ref<number>(0)
-const activeColorIndex = ref<number>(store.activeColorIndex)
-const isStrokeEnabled = ref<boolean>(store.currentTextStyle.enabledStroke)
-const strokeColorIndex = ref<number>(store.currentTextStyle.strokeColorIndex)
+const { activeColorIndex } = storeToRefs(store)
+const { currentTextStyle } = storeToRefs(store);
+const isStrokeEnabled = ref<boolean>(currentTextStyle.value.enabledStroke);
+const strokeColorIndex = ref<number>(currentTextStyle.value.strokeColorIndex);
 
 
 const onItemClick = (index: number) => {
@@ -86,7 +88,6 @@ const onItemClick = (index: number) => {
 
 const onColorItemClick = (index: number) => {
     store.setColor(index)
-    activeColorIndex.value = index
 }
 
 const onSizeChange = (value: number) => {
@@ -108,7 +109,6 @@ const handleStrokeChange = (e: any) => {
  */
 const onStrokeColorClick = (index: number) => {
     store.setStrokeColor(index)
-    strokeColorIndex.value = index
 }
 
 /**
@@ -125,10 +125,7 @@ const onStrokeOpacityChange = (value: number) => {
 
 
 const onCustomColorClick = () => {
-    popupStore.open('ColorPicker', {
-
-
-    })
+    popupStore.open('ColorPicker')
 }
 
 

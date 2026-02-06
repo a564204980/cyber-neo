@@ -2,23 +2,28 @@
     <view>
         <scroll-view scroll-x enable-flex scroll-with-animation class="color-panel-scroll-wrapper">
             <view class="color-panel-scroll flex">
-                <view v-for="(item, index) in colorPanelList" :key="index"
-                    class="color-panel-item flex direction-column justify-center items-center"
-                    @click="onColorItemClick(index)">
-                    <view class="color-panel-orgin" :style="[originStyle, { backgroundColor: item.color }]"
-                        :class="index === activeColorIndex ? 'active' : ''">
-                        <text v-if="activeColorIndex === index" class="material-icons">check</text>
+                <template v-for="(item, index) in colorPanelList" :key="index">
+                    <view v-if="item.label !== '自定义'"
+                        class="color-panel-item flex direction-column justify-center items-center"
+                        @click="onColorItemClick(index)">
+                        <view class="color-panel-orgin" :style="[originStyle, { backgroundColor: item.color }]"
+                            :class="index === activeColorIndex ? 'active' : ''">
+                            <text v-if="activeColorIndex === index" class="material-icons">check</text>
+                        </view>
+                        <view class="color-panel-text">{{ item.label }}</view>
                     </view>
-                    <view class="color-panel-text">{{ item.label }}</view>
-                </view>
 
-                <view @click="onCustomColorClick"
-                    class="color-panel-item flex direction-column justify-center items-center">
-                    <view class="color-panel-orgin color-panel-custom" :style="[originStyle]">
-                        <text class="material-icons">add</text>
+                    <view v-else @click="onCustomColorClick"
+                        class="color-panel-item flex direction-column justify-center items-center">
+                        <view class="color-panel-orgin color-panel-custom"
+                            :class="index === activeColorIndex ? 'active' : ''" :style="[originStyle]">
+                            <text class="material-icons">add</text>
+                        </view>
+                        <view class="color-panel-text">自定义</view>
                     </view>
-                    <view class="color-panel-text"> 自定义</view>
-                </view>
+                </template>
+
+
             </view>
         </scroll-view>
     </view>
@@ -26,7 +31,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { useStyleStore } from '@/stores';
 
+const styleStore = useStyleStore()
 
 interface Props {
     colorPanelList: Array<{ label: string, color: string }>
@@ -55,6 +62,7 @@ const onColorItemClick = (index: number) => {
 }
 
 const onCustomColorClick = () => {
+    console.log("3333", styleStore.textStyle)
     emit('customColorClick')
 }
 </script>
