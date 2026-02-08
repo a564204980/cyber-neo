@@ -16,8 +16,8 @@
             <view>色相值</view>
             <view class="flex-1">
                 <view class="hue-track "></view>
-                <Slider v-model="hue" :min="0" :max="360" :show-value="false" block-size="20"
-                    :background-color="alphaGradient" @change="onHueChange" />
+                <Slider v-model="hue" :min-size="0" :max-size="360" :show-value="false" block-size="20"
+                    :background-color="alphaGradient" @change="onHueChange" @update:model-value="onHueChange" />
             </view>
         </view>
 
@@ -26,7 +26,7 @@
             <view>透明度</view>
             <view class="flex-1">
                 <view class="alpha-track "></view>
-                <Slider v-model="alpha" :min="0" :max="100" :show-value="false" block-size="20"
+                <Slider v-model="alpha" :min-size="0" :max-size="100" :show-value="false" block-size="20"
                     :background-color="alphaGradientBg" @change="onAlphaChange" />
             </view>
         </view>
@@ -45,6 +45,10 @@ import { computed, getCurrentInstance, onMounted, ref } from 'vue';
 import Slider from './Slider.vue';
 import { getRects } from "@/utils"
 import { usePopupStore, useStyleStore } from "@/stores";
+
+const props = defineProps<{
+    data?: { target: 'text' | 'stroke' }
+}>()
 
 const popupStore = usePopupStore()
 const styleStore = useStyleStore()
@@ -165,9 +169,20 @@ const onCanvasTouchEnd = () => {
 const onConfirm = () => {
     const color = `hsla(${hue.value}, ${saturation.value}%, ${lightness.value}%, ${alpha.value / 100})`
 
-    styleStore.setCustomColor({ color, hue: hue.value, saturation: saturation.value, lightness: lightness.value, alpha: alpha.value })
+    const data = {
+        color,
+        hue: hue.value,
+        saturation: saturation.value,
+        lightness: lightness.value,
+        alpha: alpha.value
+    }
 
-    console.log("点击时候的hue", hue)
+    if (props.data?.target === "stroke") {
+        styleStore.updateStrokeCustomColor(data)
+    } else {
+        styleStore.updateCustomColor(data)
+
+    }
 
     popupStore.close()
 }
@@ -186,10 +201,25 @@ const onAlphaChange = (val: number) => {
 
 
 const initColorFromStore = () => {
-    hue.value = styleStore.textStyle.hue
-    saturation.value = styleStore.textStyle.saturation
-    lightness.value = styleStore.textStyle.lightness
-    alpha.value = styleStore.textStyle.alpha
+    let config
+
+    if (props.data?.target === "stroke") {
+        config = styleStore.strokeConfig.colorConfig;
+    } else {
+        config = styleStore.colorConfig;
+    }
+
+    if (config?.type === 'custom' && config.custom) {
+        hue.value = config.custom.hue
+        saturation.value = config.custom.saturation
+        lightness.value = config.custom.lightness
+        alpha.value = config.custom.alpha
+    } else {
+        hue.value = 0
+        saturation.value = 100
+        lightness.value = 50
+        alpha.value = 100
+    }
 
     const l = lightness.value / 100
     const s = saturation.value / 100

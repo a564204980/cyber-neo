@@ -11,11 +11,14 @@
 const emit = defineEmits(['tagClick'])
 
 const tagList = [
-    { label: "🎂 生日快乐生日快乐生日快乐" },
-    { label: "✈️ 接机" },
-    { label: "🔥 加油" },
-    { label: "👋 你好" },
-    { label: "🎂 生日快乐" },
+    { label: "🎤 演唱会应援模式" },
+    { label: "✈️ 接机举牌模式" },
+    { label: "🎂 生日表白模式" },
+    { label: "👋 夜市招揽模式" },
+    { label: "🔇 课堂静音模式" },
+    { label: "📸 拍照打卡模式" },
+    { label: "🌙 夜间安全模式" },
+    { label: "🎯 活动引导模式" },
 ]
 
 const onTagClick = (item: { label: string }) => {
@@ -38,7 +41,7 @@ const onTagClick = (item: { label: string }) => {
     background-color: #262626;
     flex-shrink: 0;
     margin-right: 20rpx;
-    max-width: 200rpx;
+    max-width: 260rpx;
 }
 
 .tag-text {

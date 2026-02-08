@@ -1,24 +1,27 @@
 <template>
     <view class="control-panel direction-column">
-        <view class="input-area w-full">
-            <view class="input-area-head flex items-center justify-between">
-                <view class="input-area-head-left text-primary">
-                    <text class="material-icons">format_size</text>
-                    <text>文字内容</text>
+        <view class="collapsible-content" :class="{ 'collapsed': activeTab !== 0 }">
+            <view class="input-area w-full">
+                <view class="input-area-head flex items-center justify-between">
+                    <view class="input-area-head-left text-primary">
+                        <text class="material-icons">format_size</text>
+                        <text>文字内容</text>
+                    </view>
+                    <view class="input-area-head-right text-secondary">{{ `${inputValue.length}/${max}` }}</view>
                 </view>
-                <view class="input-area-head-right text-secondary">{{ `${inputValue.length}/${max}` }}</view>
+                <view class="input-area-body">
+                    <textarea @input="onInput" @confirm="onConfirm" @keydown.enter.prevent="onConfirm"
+                        confirm-type="send" :maxlength="max" :value="inputValue" confirm-hold :show-confirm-bar="false"
+                        class="w-full h-full input-area-body-input" placeholder="请输入弹幕内容"
+                        placeholder-class="input-placeholder" />
+                </view>
             </view>
-            <view class="input-area-body">
-                <textarea @input="onInput" @confirm="onConfirm" @keydown.enter.prevent="onConfirm" confirm-type="send"
-                    :maxlength="max" :value="inputValue" confirm-hold :show-confirm-bar="false"
-                    class="w-full h-full input-area-body-input" placeholder="请输入弹幕内容"
-                    placeholder-class="input-placeholder" />
-            </view>
+
+            <Tag @tagClick="onTagClick" class="tag-container" />
         </view>
 
-        <Tag @tagClick="onTagClick" class="tag-container" />
 
-        <PanelTabs class="panel-tabs" />
+        <PanelTabs class="panel-tabs" v-model="activeTab" />
     </view>
 </template>
 
@@ -36,6 +39,7 @@ const props = defineProps<Props>()
 const emits = defineEmits(["send"])
 
 const max = 50
+const activeTab = ref(1)
 const inputValue = ref<string>("")
 
 watch(() => props.value, () => {
@@ -66,9 +70,23 @@ const onTagClick = (item: { label: string }) => {
     gap: 20rpx;
 }
 
+.collapsible-content {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    max-height: 500rpx;
+    opacity: 1;
+    overflow: hidden;
+}
+
+.collapsible-content.collapsed {
+    max-height: 0;
+    opacity: 0;
+    margin: 0;
+    padding: 0;
+}
+
 .input-area {
     box-sizing: border-box;
-    padding: 0 40rpx;
+    padding: 40rpx 40rpx 0;
 }
 
 .input-area-head-left {

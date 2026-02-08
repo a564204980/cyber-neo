@@ -1,157 +1,190 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
+import { DEFAULT_COLOR_PRESETS } from "@/config/color-presets";
+import type { CustomColorData, ColorConfig, StrokeConfig } from "@/types/style";
 
-export const useStyleStore = defineStore("style", () => {
-  const MAX_FONT_SIZE = 300;
-  const MIN_FONT_SIZE = 50;
-  const MAX_TEXT_LENGTH = 50;
+const SYSTEM_CONSTRATNTS = {
+  fontSize: { min: 50, max: 300, unit: "rpx" },
+  strokeWidth: { min: 0, max: 10, unit: "rpx" },
+  strokeOpacity: { min: 0, max: 1, step: 0.1 },
+  textLength: { max: 50 },
+} as const;
 
-  const MIN_STROKE_WIDTH = 0;
-  const MAX_STROKE_WIDTH = 10;
-
-  const textStyle = ref({
-    fontSize: 100,
-
-    // 颜色相关
-    activeColorIndex: 0,
-    isUsingCustomColor: false,
-    customColor: null as string | null,
-
-    // 自定义颜色详细参数
-    hue: 0, // 色相
-    saturation: 100, // 饱和度
-    lightness: 50, // 明度
-    alpha: 100, // 透明度
-
-    // 描边相关
-    stroke: {
+export const useStyleStore = defineStore(
+  "style",
+  () => {
+    const fontSize = ref(100);
+    const colorConfig = ref<ColorConfig>({ type: "preset", presetIndex: 0 });
+    const strokeConfig = ref<StrokeConfig>({
       enabled: true,
       colorIndex: 3,
       width: 3,
       opacity: 1,
+      colorConfig: {
+        type: "preset",
+        presetIndex: 0,
+        custom: {
+          hue: 0,
+          saturation: 0,
+          lightness: 0,
+          alpha: 0,
+          color: "",
+        },
+      },
+    });
+
+    const colorList = ref([...DEFAULT_COLOR_PRESETS]);
+
+    /**
+     * 获取当前颜色
+     */
+    const currentColor = computed(() => {
+      if (colorConfig.value.type === "custom" && colorConfig.value.custom) {
+        return colorConfig.value.custom.color;
+      } else {
+        const index = colorConfig.value.presetIndex ?? 0;
+        return colorList.value[index].color;
+      }
+    });
+
+    /**
+     * 获取当前描边
+     */
+    const currentStroke = computed(() => {
+      let color;
+      const config = strokeConfig.value.colorConfig;
+
+      if (config?.type === "custom" && config.custom) {
+        color = config.custom.color;
+      } else {
+        const index = config?.presetIndex ?? strokeConfig.value.colorIndex ?? 0;
+        color = colorList.value[index].color;
+      }
+      return {
+        color: color,
+        width: strokeConfig.value.width,
+        opacity: strokeConfig.value.opacity,
+      };
+    });
+
+    /**
+     * 设置预设颜色
+     * @param index 预设颜色索引
+     */
+    const updateColor = (index: number) => {
+      colorConfig.value = {
+        type: "preset",
+        presetIndex: index,
+      };
+    };
+
+    /**
+     * 设置自定义颜色
+     * @param colorData 自定义颜色数据
+     */
+    const updateCustomColor = (colorData: CustomColorData) => {
+      colorConfig.value = {
+        type: "custom",
+        custom: colorData,
+        presetIndex: colorList.value.length - 1,
+      };
+    };
+
+    /**
+     * 设置字号
+     * @param size
+     */
+    const updateSize = (size: number) => {
+      const { min, max } = SYSTEM_CONSTRATNTS.fontSize;
+      fontSize.value = Math.min(Math.max(size, min), max);
+    };
+
+    /**
+     * 设置描边开关
+     * @param enabled 描边开关
+     */
+    const updateStrokeEnabled = (enabled: boolean) => {
+      strokeConfig.value.enabled = enabled;
+    };
+
+    /**
+     * 设置描边粗细
+     * @param width 描边粗细
+     */
+    const updateStrokeWidth = (width: number) => {
+      const { min, max } = SYSTEM_CONSTRATNTS.strokeWidth;
+      strokeConfig.value.width = Math.min(Math.max(Number(width), min), max);
+    };
+
+    /**
+     * 设置描边颜色
+     * @param index 颜色索引
+     */
+    const updateStrokeColor = (index: number, target = "preset") => {
+      if (index >= 0 && index < colorList.value.length) {
+        strokeConfig.value.colorIndex = index;
+
+        strokeConfig.value.colorConfig = {
+          type: target === "stroke" ? "custom" : "preset",
+          presetIndex: index,
+        };
+      }
+    };
+
+    /**
+     * 设置描边自定义颜色
+     * @param colorData 自定义颜色数据
+     */
+    const updateStrokeCustomColor = (colorData: CustomColorData) => {
+      strokeConfig.value.colorConfig = {
+        type: "custom",
+        custom: colorData,
+        presetIndex: colorList.value.length - 1,
+      };
+    };
+
+    /**
+     * 设置描边透明度
+     * @param opacity 描边透明度
+     */
+    const updateStrokeOpacity = (opacity: number) => {
+      strokeConfig.value.opacity = Math.min(Math.max(opacity, 0), 1);
+    };
+
+    return {
+      // 状态
+      fontSize,
+      colorConfig,
+      strokeConfig,
+      colorList,
+      // 计算属性
+      currentColor,
+      currentStroke,
+      // 方法
+      updateColor,
+      updateCustomColor,
+      updateSize,
+      updateStrokeEnabled,
+      updateStrokeWidth,
+      updateStrokeColor,
+      updateStrokeOpacity,
+      updateStrokeCustomColor,
+
+      MIN_FONT_SIZE: SYSTEM_CONSTRATNTS.fontSize.min,
+      MAX_FONT_SIZE: SYSTEM_CONSTRATNTS.fontSize.max,
+      MIN_STROKE_WIDTH: SYSTEM_CONSTRATNTS.strokeWidth.min,
+      MAX_STROKE_WIDTH: SYSTEM_CONSTRATNTS.strokeWidth.max,
+      MIN_STROKE_OPACITY: SYSTEM_CONSTRATNTS.strokeOpacity.min,
+      MAX_STROKE_OPACITY: SYSTEM_CONSTRATNTS.strokeOpacity.max,
+      STROKE_OPACITY_STEP: SYSTEM_CONSTRATNTS.strokeOpacity.step,
+    };
+  },
+  {
+    persist: {
+      storage: {
+        getItem: (key: string) => uni.getStorageSync(key),
+        setItem: (key: string, value: string) => uni.setStorageSync(key, value),
+      },
     },
-  });
-
-  const colorList = [
-    { label: "电光蓝", color: "#00e5ff" },
-    { label: "荧光绿", color: "#39ff14" },
-    { label: "霓虹粉", color: "#ff007f" },
-    { label: "赛博紫", color: "#b200ff" },
-    { label: "炽热橙", color: "#ff7f00" },
-    { label: "自定义", color: "" },
-  ];
-
-  const currentTextStyle = computed(() => ({
-    color: textStyle.value.isUsingCustomColor
-      ? textStyle.value.customColor
-      : colorList[textStyle.value.activeColorIndex].color,
-    fontSize: textStyle.value.fontSize,
-    colorLabel: textStyle.value.isUsingCustomColor
-      ? "自定义"
-      : colorList[textStyle.value.activeColorIndex].label,
-    enabledStroke: textStyle.value.stroke.enabled,
-    strokeColor: colorList[textStyle.value.stroke.colorIndex].color,
-    strokeWidth: textStyle.value.stroke.width,
-    strokeColorIndex: textStyle.value.stroke.colorIndex,
-    strokeOpacity: textStyle.value.stroke.opacity,
-  }));
-
-  const setColor = (index: number) => {
-    textStyle.value.activeColorIndex = index;
-    textStyle.value.isUsingCustomColor = false;
-  };
-
-  /**
-   * 设置自定义颜色
-   * @param colorData 调色板返回的颜色数据
-   */
-  const setCustomColor = (colorData: Record<string, any>) => {
-    textStyle.value.customColor = colorData.color;
-    textStyle.value.isUsingCustomColor = true;
-    textStyle.value.activeColorIndex = colorList.length - 1;
-    textStyle.value.hue = colorData.hue;
-    textStyle.value.saturation = colorData.saturation;
-    textStyle.value.lightness = colorData.lightness;
-    textStyle.value.alpha = colorData.alpha;
-  };
-
-  /**
-   * 设置字号
-   * @param size
-   */
-  const setSize = (size: number) => {
-    const validSize = Number(size);
-    if (isNaN(validSize)) {
-      textStyle.value.fontSize = MIN_FONT_SIZE;
-    } else {
-      textStyle.value.fontSize = Math.min(
-        Math.max(validSize, MIN_FONT_SIZE),
-        MAX_FONT_SIZE,
-      );
-    }
-  };
-
-  /**
-   * 设置描边开关
-   * @param enabled 描边开关
-   */
-  const setStrokeEnabled = (enabled: boolean) => {
-    textStyle.value.stroke.enabled = enabled;
-  };
-
-  /**
-   * 设置描边粗细
-   * @param width 描边粗细
-   */
-  const setStrokeWidth = (width: number) => {
-    const validWidth = Number(width);
-    textStyle.value.stroke.width = Math.min(
-      Math.max(validWidth, MIN_STROKE_WIDTH),
-      MAX_STROKE_WIDTH,
-    );
-  };
-
-  /**
-   * 设置描边颜色
-   * @param index 颜色索引
-   */
-  const setStrokeColor = (index: number) => {
-    if (index >= 0 && index < colorList.length) {
-      textStyle.value.stroke.colorIndex = index;
-    }
-  };
-
-  /**
-   * 设置描边透明度
-   * @param opacity 描边透明度
-   */
-  const setStrokeOpacity = (opacity: number) => {
-    textStyle.value.stroke.opacity = opacity / 10;
-  };
-
-  const activeColorIndex = computed(() => textStyle.value.activeColorIndex);
-  const fontSize = computed(() => textStyle.value.fontSize);
-  const strokeWidth = computed(() => textStyle.value.stroke.width);
-  const strokeColorIndex = computed(() => textStyle.value.stroke.colorIndex);
-
-  return {
-    textStyle, // 导出完整的 textStyle 对象
-    activeColorIndex,
-    colorList,
-    currentTextStyle,
-    setColor,
-    fontSize,
-    setSize,
-    MAX_FONT_SIZE,
-    MIN_FONT_SIZE,
-    setStrokeWidth,
-    setStrokeColor,
-    MIN_STROKE_WIDTH,
-    MAX_STROKE_WIDTH,
-    strokeWidth,
-    strokeColorIndex,
-    setStrokeEnabled,
-    setStrokeOpacity,
-    setCustomColor,
-  };
-});
+  } as any
+);

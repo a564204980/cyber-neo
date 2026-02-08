@@ -15,7 +15,7 @@
             <view class="color-panel-container">
                 <view class="font-bold color-panel-title">颜色面板</view>
                 <ColorPicker :colorPanelList="colorPanelList" :activeColorIndex="activeColorIndex"
-                    @colorClick="onColorItemClick" @customColorClick="onCustomColorClick" />
+                    @colorClick="onColorItemClick" @customColorClick="onCustomColorClick('text')" />
             </view>
 
             <view class="size-panel-container">
@@ -34,21 +34,21 @@
                     <view class="stroke-panel-color-container">
                         <view class="stroke-panel-color-title">描边颜色</view>
                         <ColorPicker :colorPanelList="colorPanelList" :activeColorIndex="strokeColorIndex"
-                            @colorClick="onStrokeColorClick" :size="60" />
+                            @colorClick="onStrokeColorClick" @customColorClick="onCustomColorClick('stroke')"
+                            :size="60" />
                     </view>
 
                     <view class="stroke-panel-config-container">
                         <view class="stroke-panel-config-title">粗细</view>
                         <Slider @change="onStrokeWidthChange" @update:modelValue="onStrokeWidthChange"
                             :minSize="store.MIN_STROKE_WIDTH" :maxSize="store.MAX_STROKE_WIDTH"
-                            :model-value="store.strokeWidth" />
+                            :model-value="store.strokeConfig.width" />
                     </view>
 
                     <view class="stroke-panel-config-container">
                         <view class="stroke-panel-config-title">透明度</view>
-                        <Slider @change="onStrokeOpacityChange" @update:modelValue="onStrokeOpacityChange"
-                            :minSize="store.MIN_STROKE_WIDTH" :maxSize="store.MAX_STROKE_WIDTH"
-                            :model-value="store.strokeWidth" />
+                        <Slider v-model="strokeOpacityDisplay" :minSize="store.MIN_STROKE_OPACITY"
+                            :maxSize="store.MAX_STROKE_OPACITY * 10" :step="store.STROKE_OPACITY_STEP * 10" />
                     </view>
                 </view>
             </view>
@@ -61,9 +61,8 @@
 import Slider from '@/components/common/Slider.vue';
 import ColorPicker from '@/components/control-panel/common/ColorPicker.vue';
 
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useStyleStore, usePopupStore } from '@/stores'
-import { storeToRefs } from 'pinia';
 
 const store = useStyleStore()
 const popupStore = usePopupStore()
@@ -76,22 +75,37 @@ const list = [
 const colorPanelList = store.colorList
 
 const activeIndex = ref<number>(0)
-const { activeColorIndex } = storeToRefs(store)
-const { currentTextStyle } = storeToRefs(store);
-const isStrokeEnabled = ref<boolean>(currentTextStyle.value.enabledStroke);
-const strokeColorIndex = ref<number>(currentTextStyle.value.strokeColorIndex);
 
+const activeColorIndex = computed(() => {
+    return store.colorConfig.presetIndex ?? -1
+})
+const isStrokeEnabled = computed(() => store.strokeConfig.enabled)
+const strokeColorIndex = computed(() => {
+    if (store.strokeConfig.colorConfig?.type === 'custom') {
+        return colorPanelList.length - 1
+    }
+    return store.strokeConfig.colorConfig?.presetIndex ?? store.strokeConfig.colorIndex
+})
+
+const strokeOpacityDisplay = computed({
+    get() {
+        return Math.round(store.strokeConfig.opacity * 10)
+    },
+    set(val: number) {
+        store.updateStrokeOpacity(val / 10);
+    }
+})
 
 const onItemClick = (index: number) => {
     activeIndex.value = index
 }
 
 const onColorItemClick = (index: number) => {
-    store.setColor(index)
+    store.updateColor(index)
 }
 
 const onSizeChange = (value: number) => {
-    store.setSize(value)
+    store.updateSize(value)
 }
 
 /**
@@ -99,8 +113,7 @@ const onSizeChange = (value: number) => {
  * @param e 
  */
 const handleStrokeChange = (e: any) => {
-    isStrokeEnabled.value = e.detail.value
-    store.setStrokeEnabled(e.detail.value)
+    store.updateStrokeEnabled(e.detail.value)
 }
 
 /**
@@ -108,7 +121,8 @@ const handleStrokeChange = (e: any) => {
  * @param index 颜色索引
  */
 const onStrokeColorClick = (index: number) => {
-    store.setStrokeColor(index)
+    store.updateStrokeColor(index)
+    console.log("描边颜色")
 }
 
 /**
@@ -116,16 +130,17 @@ const onStrokeColorClick = (index: number) => {
  * @param value 描边粗细
  */
 const onStrokeWidthChange = (value: number) => {
-    store.setStrokeWidth(value)
-}
-
-const onStrokeOpacityChange = (value: number) => {
-    store.setStrokeOpacity(value)
+    store.updateStrokeWidth(value)
 }
 
 
-const onCustomColorClick = () => {
-    popupStore.open('ColorPicker')
+/**
+ * 自定义颜色点击
+ * @param index 颜色索引
+ * @param target 颜色类型
+ */
+const onCustomColorClick = (target: 'text' | 'stroke') => {
+    popupStore.open('ColorPicker', { target })
 }
 
 

@@ -34,6 +34,7 @@ interface Props {
     minSize?: number // 最小值
     maxSize?: number // 最大值
     showValue?: boolean; // 是否显示当前值
+    format?: (value: number) => number | string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -43,7 +44,8 @@ const props = withDefaults(defineProps<Props>(), {
     backgroundColor: `linear-gradient(90deg, #FF69B4 0%, #ff007f 100%)`,
     minSize: 0,
     maxSize: 100,
-    showValue: true
+    showValue: true,
+    format: (value: number) => value,
 })
 
 const emit = defineEmits<{
@@ -88,9 +90,7 @@ const getSliderWidth = async () => {
 const handleTouchStart = async () => {
     isDragging.value = true
 
-    if (sliderWidth.value === 0) {
-        getSliderWidth()
-    }
+    await getSliderWidth()
 }
 
 /**
@@ -128,22 +128,25 @@ const handleTouchEnd = () => {
 /**
  * 处理轨道点击
 */
-const handleTrackClick = (e: any) => {
+const handleTrackClick = async (e: any) => {
     if (isDragging.value) return
+    await getSliderWidth()
 
+    if (!trackRect.value) return
     const { left, width } = trackRect.value
-
     const offsetX = e.detail.x - left
     const percentage = Math.max(0, Math.min(offsetX / width, 1))
-
     let newValue = props.minSize + percentage * (props.maxSize - props.minSize)
-    newValue = Math.round(newValue / props.step) * props.step
 
+    if (props.step > 0) {
+        newValue = Math.round(newValue / props.step) * props.step
+    }
+
+    newValue = parseFloat(newValue.toFixed(2))
     currentValue.value = newValue
     emit('update:modelValue', newValue)
-
-    uni.vibrateShort({ type: 'light' }) // 触感反馈
-
+    emit("change", newValue)
+    uni.vibrateShort({ type: 'light' })
 }
 
 onMounted(() => {

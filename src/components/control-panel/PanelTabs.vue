@@ -30,7 +30,15 @@
 import AnimSettings from "./settings/AnimSettings.vue"
 import StyleSettings from "./settings/StyleSettings.vue"
 import EffectSettings from "./settings/EffectSettings.vue"
-import { ref } from "vue"
+import { ref, watch } from "vue"
+
+interface Props {
+    modelValue: number
+}
+
+const props = defineProps<Props>()
+
+const emit = defineEmits(['update:modelValue'])
 
 const tabs = [
     { label: "样式", value: "style", },
@@ -38,14 +46,20 @@ const tabs = [
     { label: "特效", value: "effect", }
 ]
 
-const activeTabIndex = ref<number>(0)
+const activeTabIndex = ref<number>(props.modelValue || 0)
+
+watch(() => props.modelValue, (val) => {
+    activeTabIndex.value = val
+})
 
 const onTabClick = (index: number) => {
     activeTabIndex.value = index
+    emit('update:modelValue', index)
 }
 
 const onSwiperChange = (e: any) => {
     activeTabIndex.value = e.detail.current
+    emit('update:modelValue', e.detail.current)
 }
 
 </script>

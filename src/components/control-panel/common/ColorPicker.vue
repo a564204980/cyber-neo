@@ -13,7 +13,7 @@
                         <view class="color-panel-text">{{ item.label }}</view>
                     </view>
 
-                    <view v-else @click="onCustomColorClick"
+                    <view v-else @click="onCustomColorClick(index)"
                         class="color-panel-item flex direction-column justify-center items-center">
                         <view class="color-panel-orgin color-panel-custom"
                             :class="index === activeColorIndex ? 'active' : ''" :style="[originStyle]">
@@ -61,9 +61,8 @@ const onColorItemClick = (index: number) => {
     emit('colorClick', index)
 }
 
-const onCustomColorClick = () => {
-    console.log("3333", styleStore.textStyle)
-    emit('customColorClick')
+const onCustomColorClick = (index: number) => {
+    emit('customColorClick', index)
 }
 </script>
 

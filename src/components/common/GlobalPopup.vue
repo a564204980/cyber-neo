@@ -2,7 +2,7 @@
     <uni-popup ref="popupRef" @touchmove.stop.prevent type="bottom" border-radius="40rpx 40rpx 0 0"
         background-color="#1d1d1f">
 
-        <ColorPickerPanel v-if="popupStore.currentView === 'ColorPicker'" />
+        <ColorPickerPanel v-if="popupStore.currentView === 'ColorPicker'" :data="popupStore.popupData" />
     </uni-popup>
 </template>
 

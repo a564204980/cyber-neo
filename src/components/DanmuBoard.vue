@@ -1,17 +1,18 @@
 <template>
     <view class="danmu-board">
         <view class="content-wrapper flex items-center" :style="wrapperStyle">
-            <text v-if="showDanmu" class="danmu-text" :style="danmuStyle">{{ props.text
-                }}</text>
+            <text v-if="showDanmu" class="danmu-text" :style="[danmuStyle, animStyle]">{{ displayText }}</text>
         </view>
     </view>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch, nextTick } from 'vue';
-import { useStyleStore } from '@/stores'
+import { useStyleStore, useAnimStore } from '@/stores'
+import { hexToRgba } from '@/utils'
 
 const store = useStyleStore()
+const animStore = useAnimStore()
 
 const showDanmu = ref(true);
 
@@ -47,35 +48,52 @@ const wrapperStyle = computed(() => {
 
 const danmuStyle = computed(() => {
     const style: any = {
-        color: store.currentTextStyle.color,
-        fontSize: store.currentTextStyle.fontSize + 'rpx',
+        color: store.currentColor,
+        fontSize: store.fontSize + 'rpx',
     }
-    const { enabledStroke, strokeColor, strokeWidth, strokeOpacity } = store.currentTextStyle
-    if (enabledStroke && strokeWidth > 0) {
-        // 将 hex 颜色转换为 rgba
-        const rgbaColor = hexToRgba(strokeColor, strokeOpacity)
 
+    const { color, width, opacity } = store.currentStroke
+    const enabled = store.strokeConfig.enabled
+
+    if (enabled && width > 0) {
+        const rgbaColor = hexToRgba(color, opacity)
         style.textShadow = `
-            ${strokeWidth}rpx ${strokeWidth}rpx 0 ${rgbaColor},
-            ${strokeWidth}rpx ${-strokeWidth}rpx 0 ${rgbaColor},
-            ${-strokeWidth}rpx ${strokeWidth}rpx 0 ${rgbaColor},
-            ${-strokeWidth}rpx ${-strokeWidth}rpx 0 ${rgbaColor}
+            ${width}rpx ${width}rpx 0 ${rgbaColor},
+            ${width}rpx ${-width}rpx 0 ${rgbaColor},
+            ${-width}rpx ${width}rpx 0 ${rgbaColor},
+            ${-width}rpx ${-width}rpx 0 ${rgbaColor}
         `
     }
+
     return style
 })
 
-const hexToRgba = (hex: string, opacity: number): string => {
-    // 去掉 # 号
-    hex = hex.replace('#', '')
+const animStyle = computed(() => {
+    const direction = animStore.direction
 
-    // 解析 RGB 值
-    const r = parseInt(hex.substring(0, 2), 16)
-    const g = parseInt(hex.substring(2, 4), 16)
-    const b = parseInt(hex.substring(4, 6), 16)
+    const animNameMap = {
+        left: "scroll-left",
+        right: "scroll-right",
+        up: "scroll-up",
+        down: "scroll-down"
+    }
 
-    return `rgba(${r}, ${g}, ${b}, ${opacity})`
-}
+    return {
+        animationName: animNameMap[direction] || "scroll-left",
+        animationDuration: '10s',
+        animationTimingFunction: 'linear',
+        animationIterationCount: 'infinite'
+    }
+})
+
+
+const displayText = computed(() => {
+    if (animStore.direction === 'right') {
+        return props.text.split('').reverse().join('')
+    }
+    return props.text
+})
+
 
 watch(() => props.text, async () => {
     showDanmu.value = false;
@@ -112,12 +130,13 @@ watch(() => props.text, async () => {
     top: 50%;
     left: 0;
     white-space: nowrap;
-    animation: scroll-left 10s linear infinite;
     will-change: transform;
     font-weight: bold;
     z-index: 99;
 }
+</style>
 
+<style>
 @keyframes scroll-left {
     0% {
         transform: translateY(-50%) translateX(var(--move-distance))
@@ -125,6 +144,44 @@ watch(() => props.text, async () => {
 
     100% {
         transform: translateY(-50%) translateX(-100%);
+    }
+}
+
+@keyframes scroll-right {
+    0% {
+        transform: translateY(-50%) translateX(-100%);
+    }
+
+    100% {
+        transform: translateY(-50%) translateX(100vw);
+    }
+}
+
+@keyframes scroll-up {
+    0% {
+        transform: translate(-50%, 100vh);
+        top: 0;
+        left: 50%;
+    }
+
+    100% {
+        transform: translate(-50%, -100%);
+        top: 0;
+        left: 50%;
+    }
+}
+
+@keyframes scroll-down {
+    0% {
+        transform: translate(-50%, -100%);
+        top: 0;
+        left: 50%;
+    }
+
+    100% {
+        transform: translate(-50%, 100vh);
+        top: 0;
+        left: 50%;
     }
 }
 </style>

@@ -155,7 +155,7 @@ onMounted(() => {
 }
 
 .drag-block-container {
-  padding: 40rpx 0;
+  padding: 40rpx 0 0;
 }
 
 .drag-block {
