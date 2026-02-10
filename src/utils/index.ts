@@ -1,24 +1,33 @@
 /**
- * 获取一组元素节点信息
- * @param selector 选择器
+ * 获取一组或多组元素节点信息
+ * @param selector 选择器或选择器数组
  * @param instance 组件实例
- * @returns Promise<NodeInfo[]>
+ * @returns Promise<NodeInfo[] | NodeInfo[][]>
  */
 export const getRects = (
-  selector: string,
-  instance?: any
-): Promise<UniApp.NodeInfo[]> => {
+  selector: string | string[],
+  instance?: any,
+): Promise<UniApp.NodeInfo[] | UniApp.NodeInfo[][]> => {
   return new Promise((resolve) => {
     const query = instance
       ? uni.createSelectorQuery().in(instance)
       : uni.createSelectorQuery();
 
-    query
-      .selectAll(selector)
-      .boundingClientRect((data) => {
-        resolve(data as UniApp.NodeInfo[]);
-      })
-      .exec();
+    if (Array.isArray(selector)) {
+      selector.forEach((sel) => {
+        query.select(sel).boundingClientRect();
+      });
+      query.exec((data) => {
+        resolve(data as UniApp.NodeInfo[][]);
+      });
+    } else {
+      query
+        .selectAll(selector)
+        .boundingClientRect((data) => {
+          resolve(data as UniApp.NodeInfo[]);
+        })
+        .exec();
+    }
   });
 };
 
@@ -32,7 +41,7 @@ export const getRects = (
  */
 export const throttle = <T extends (...args: any[]) => any>(
   fn: T,
-  delay: number = 200
+  delay: number = 200,
 ) => {
   let timer: ReturnType<typeof setTimeout> | null = null;
   let lastTime = 0;
@@ -47,11 +56,14 @@ export const throttle = <T extends (...args: any[]) => any>(
       fn.apply(this, args);
       lastTime = now;
     } else if (!timer) {
-      timer = setTimeout(() => {
-        fn.apply(this, args);
-        lastTime = Date.now();
-        timer = null;
-      }, delay - (now - lastTime)) as any;
+      timer = setTimeout(
+        () => {
+          fn.apply(this, args);
+          lastTime = Date.now();
+          timer = null;
+        },
+        delay - (now - lastTime),
+      ) as any;
     }
   };
 };
@@ -67,7 +79,7 @@ export const hexToRgba = (color: string, opacity: number): string => {
   if (color.startsWith("hsl")) {
     // 提取数字：匹配整数或小数 ([\d\.]+)
     const match = color.match(
-      /hsl[a]?\(\s*([\d\.]+)\s*,\s*([\d\.]+)%?\s*,\s*([\d\.]+)%?/
+      /hsl[a]?\(\s*([\d\.]+)\s*,\s*([\d\.]+)%?\s*,\s*([\d\.]+)%?/,
     );
     if (match) {
       const [_, h, s, l] = match;
@@ -78,7 +90,7 @@ export const hexToRgba = (color: string, opacity: number): string => {
   // 2. 处理 RGB / RGBA
   if (color.startsWith("rgb")) {
     const match = color.match(
-      /rgb[a]?\(\s*([\d\.]+)\s*,\s*([\d\.]+)\s*,\s*([\d\.]+)/
+      /rgb[a]?\(\s*([\d\.]+)\s*,\s*([\d\.]+)\s*,\s*([\d\.]+)/,
     );
     if (match) {
       const [_, r, g, b] = match;

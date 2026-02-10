@@ -1,27 +1,42 @@
 <template>
     <view class="anim-settings">
-        <view class="section">
-            <view class="section-title">运动方向</view>
-            <view class="grid-container">
-                <view v-for="item in directionList" :key="item.value"
-                    :class="{ active: animStore.direction === item.value }" @click="handleDirectionChange(item.value)"
-                    class="direction-item">
-                    <view class="icon material-icons">{{ item.icon }}</view>
-                    <text class="label">{{ item.label }}</text>
+        <scroll-view class="scroll-view">
+            <view class="section">
+                <view class="section-title">运动方向</view>
+                <view class="grid-container">
+                    <view v-for="item in directionList" :key="item.value"
+                        :class="{ active: animStore.direction === item.value }"
+                        @click="handleDirectionChange(item.value)" class="direction-item">
+                        <view class="icon material-icons">{{ item.icon }}</view>
+                        <text class="label">{{ item.label }}</text>
+                    </view>
                 </view>
             </view>
-        </view>
 
-        <view class="section">
-            <view class="section-title">运动方向</view>
-            <view class="grid-container">
-                <view v-for="item in effectList" :key="item.value" :class="{ active: animStore.effect === item.value }"
-                    @click="handleEffectChange(item.value)" class="direction-item">
-                    <view class="icon material-icons">{{ item.icon }}</view>
-                    <text class="label">{{ item.label }}</text>
+            <view class="section">
+                <view class="section-title text-white">运动方向</view>
+                <view class="grid-container">
+                    <view v-for="item in effectList" :key="item.value"
+                        :class="{ active: animStore.effect === item.value }" @click="handleEffectChange(item.value)"
+                        class="direction-item">
+                        <view class="icon material-icons">{{ item.icon }}</view>
+                        <text class="label">{{ item.label }}</text>
+                    </view>
                 </view>
             </view>
-        </view>
+
+            <view class="section">
+                <view class="section-title text-white">运动方向</view>
+                <view class="grid-container">
+                    <view v-for="item in effectList" :key="item.value"
+                        :class="{ active: animStore.effect === item.value }" @click="handleEffectChange(item.value)"
+                        class="direction-item">
+                        <view class="icon material-icons">{{ item.icon }}</view>
+                        <text class="label">{{ item.label }}</text>
+                    </view>
+                </view>
+            </view>
+        </scroll-view>
     </view>
 </template>
 

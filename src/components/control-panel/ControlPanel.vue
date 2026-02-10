@@ -1,6 +1,6 @@
 <template>
-    <view class="control-panel direction-column">
-        <view class="collapsible-content" :class="{ 'collapsed': activeTab !== 0 }">
+    <view class="control-panel-container direction-column" :style="controlPanelStyle">
+        <view class="collapsible-content">
             <view class="input-area w-full">
                 <view class="input-area-head flex items-center justify-between">
                     <view class="input-area-head-left text-primary">
@@ -21,30 +21,56 @@
         </view>
 
 
-        <PanelTabs class="panel-tabs" v-model="activeTab" />
+        <PanelTabs class="panel-tabs" v-model="activeTab" :height="panelTabsHeight" />
     </view>
 </template>
 
 <script setup lang="ts">
+import { getRects } from "@/utils";
 import PanelTabs from "./PanelTabs.vue"
 import Tag from "./Tag.vue"
-import { ref, watch } from 'vue';
+import { computed, getCurrentInstance, onMounted, ref, watch } from 'vue';
 
 interface Props {
-    value?: string
+    value?: string,
+    parentHeight?: number
 }
 
 const props = defineProps<Props>()
 
 const emits = defineEmits(["send"])
+const instance = getCurrentInstance()
 
 const max = 50
 const activeTab = ref(1)
 const inputValue = ref<string>("")
+const panelTabsHeight = ref<number>(0)
+
+const controlPanelStyle = computed(() => {
+    console.log("props.parentHeight", props.parentHeight)
+    return {
+        height: props.parentHeight + 'px'
+    }
+})
 
 watch(() => props.value, () => {
     inputValue.value = props.value || ""
 })
+
+watch(() => props.parentHeight, () => {
+    getNodeInfos()
+}, { immediate: true })
+
+watch(activeTab, () => {
+    // 等待折叠动画完成后重新计算高度
+    // Wait for the collapse animation to finish before recalculating height
+    // console.log("activeTab changed to:", activeTab.value)
+    // setTimeout(() => {
+    //     getNodeInfos()
+    // }, 350)
+})
+
+
 
 const onInput = (e: any) => {
     inputValue.value = e.detail.value
@@ -59,10 +85,30 @@ const onTagClick = (item: { label: string }) => {
     inputValue.value = item.label
     emits("send", inputValue.value)
 }
+
+
+const getNodeInfos = () => {
+    setTimeout(async () => {
+        const nodes = await getRects([".control-panel-container", ".collapsible-content"], instance) as UniApp.NodeInfo[]
+        if (nodes && nodes.length > 0) {
+
+            console.log("这是container的", nodes[0]?.height)
+            console.log("这是collapsible-content的", nodes[1]?.height)
+            panelTabsHeight.value = (props.parentHeight || 0) - (nodes[1]?.height || 0)
+
+            console.log("panelTabsHeight", panelTabsHeight.value)
+        }
+    }, 100)
+}
+
+// onMounted(() => {
+//     getNodeInfos()
+// })
+
 </script>
 
 <style lang="scss" scoped>
-.control-panel {
+.control-panel-container {
     width: 100%;
     display: flex;
     justify-content: center;
@@ -77,7 +123,7 @@ const onTagClick = (item: { label: string }) => {
     overflow: hidden;
 }
 
-.collapsible-content.collapsed {
+.collapsible-content .collapsed {
     max-height: 0;
     opacity: 0;
     margin: 0;

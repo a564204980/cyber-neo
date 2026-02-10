@@ -8,14 +8,19 @@
         <DanmuBoard class="w-full h-full" :text="danmuText" :rotation="danmuRotation" />
       </view>
 
-      <view class="control-panel"
+      <!-- 添加 flex column 布局 -->
+      <view class="control-panel flex direction-column"
         :style="{ height: panelHeightPercent - 3 + '%', transition: isDragging ? 'none' : 'height 0.2s' }">
+
+        <!-- 拖拽条部分 -->
         <view class="drag-block-container w-full flex justify-center items-center direction-column"
           @touchstart="onDragStart" @touchmove.stop.prevent="onDragMove" @touchend="onDragEnd">
           <view class="drag-block"></view>
           <view class="text-secondary ">下拉预览</view>
         </view>
-        <ControlPanel @send="onSend" :value="danmuText" />
+
+        <!-- ControlPanel 自动填满剩余空间，且 height:0 确保内部滚动正常 -->
+        <ControlPanel @send="onSend" :value="danmuText" class="flex-1 h-0" :parentHeight="controlPanelHeight" />
       </view>
     </view>
 
@@ -29,9 +34,11 @@ import CustomNavBar from '@/components/CustomNavBar.vue';
 import ControlPanel from '@/components/control-panel/ControlPanel.vue';
 import GlobalPopup from '@/components/common/GlobalPopup.vue';
 import { usePopupStore } from '@/stores';
-import { computed, onMounted, ref } from 'vue';
+import { computed, getCurrentInstance, onMounted, ref } from 'vue';
+import { getRects } from '@/utils';
 
 const popupStore = usePopupStore()
+const instance = getCurrentInstance()
 
 const popupRef = ref()
 const danmuText = ref<string>()
@@ -40,6 +47,7 @@ const startY = ref<number>(0) // 记录触摸开始时的Y坐标
 const startHeight = ref<number>(0) // 记录触摸起始时的面板高度
 const isDragging = ref(false); // 标记是否正在拖拽
 const windowHeight = uni.getSystemInfoSync().windowHeight; // 获取屏幕高度用于计算比例
+const controlPanelHeight = ref<number>(0)
 
 // 弹幕旋转角度
 const danmuRotation = computed(() => {
@@ -66,12 +74,9 @@ const navStyle = computed(() => {
   if (progress < 0) progress = 0;
   if (progress > 1) progress = 1;
 
-  // 初始状态 (panelHeight=70%, progress=0): 背景白色(255), 文字黑色(0)
-  // 结束状态 (panelHeight=26%, progress=1): 背景黑色(0), 文字白色(255)
 
-  const bgValue = Math.round(255 * (1 - progress)); // 255 -> 0
-  const colorValue = Math.round(255 * progress);     // 0 -> 255
-
+  const bgValue = Math.round(255 * (1 - progress));
+  const colorValue = Math.round(255 * progress);
   return {
     color: `rgb(${colorValue}, ${colorValue}, ${colorValue})`,
     backgroundColor: `rgb(${bgValue}, ${bgValue}, ${bgValue})`
@@ -120,8 +125,21 @@ const onDragEnd = (e: TouchEvent) => {
   }
 }
 
+const getNodeInfos = () => {
+  setTimeout(async () => {
+    const nodes = await getRects([".control-panel", ".drag-block-container"], instance) as UniApp.NodeInfo[]
+    if (nodes && nodes.length > 0) {
+      controlPanelHeight.value = (nodes[0]?.height || 0) - (nodes[1]?.height || 0)
+      console.log("nodes", controlPanelHeight.value)
+    }
+
+  }, 100)
+}
+
 onMounted(() => {
   popupStore.setPopupRef(popupRef.value.popupRef)
+
+  getNodeInfos()
 })
 </script>
 

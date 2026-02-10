@@ -1,5 +1,5 @@
 <template>
-    <view class="panel-tabs-wrapper">
+    <view class="panel-tabs-wrapper" :style="panelTabsStyle">
         <view class="flex items-center text-secondary panel-tabs">
             <view v-for="(tab, index) in tabs" :key="tab.value"
                 class="panel-tab font-bold flex items-center justify-center" @click="onTabClick(index)"
@@ -12,7 +12,8 @@
             <view class="tab-indicator" :style="{ transform: `translateX(${activeTabIndex * 100}%)` }"></view>
         </view>
 
-        <swiper :current="activeTabIndex" @change="onSwiperChange" class="swiper-container" :duration="300">
+        <swiper :current="activeTabIndex" @change="onSwiperChange" class="swiper-container" :duration="300"
+            :style="{ height: swiperHeight + 'px' }">
             <swiper-item>
                 <StyleSettings />
             </swiper-item>
@@ -30,15 +31,21 @@
 import AnimSettings from "./settings/AnimSettings.vue"
 import StyleSettings from "./settings/StyleSettings.vue"
 import EffectSettings from "./settings/EffectSettings.vue"
-import { ref, watch } from "vue"
+import { computed, getCurrentInstance, onMounted, ref, watch } from "vue"
+import { getRects } from "@/utils"
 
 interface Props {
-    modelValue: number
+    modelValue: number,
+    height?: number
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+    modelValue: 0,
+    height: 0
+})
 
 const emit = defineEmits(['update:modelValue'])
+const instance = getCurrentInstance()
 
 const tabs = [
     { label: "样式", value: "style", },
@@ -47,13 +54,22 @@ const tabs = [
 ]
 
 const activeTabIndex = ref<number>(props.modelValue || 0)
+const swiperHeight = ref<number>(0)
 
 watch(() => props.modelValue, (val) => {
     activeTabIndex.value = val
 })
 
+const panelTabsStyle = computed(() => {
+    getSwiperHeight()
+    return {
+        height: props.height - 20 + 'px'
+    }
+})
+
 const onTabClick = (index: number) => {
     activeTabIndex.value = index
+    getSwiperHeight()
     emit('update:modelValue', index)
 }
 
@@ -62,13 +78,27 @@ const onSwiperChange = (e: any) => {
     emit('update:modelValue', e.detail.current)
 }
 
+
+const getSwiperHeight = async () => {
+    setTimeout(async () => {
+        const res = await getRects([".panel-tabs", ".tab-indicator-container"], instance) as UniApp.NodeInfo[]
+        if (res && res.length > 0) {
+
+            swiperHeight.value = (props.height || 0) - (res[0]?.height || 0) - (res[1]?.height || 0) - 20
+            console.log("swiperHeight", swiperHeight.value)
+        }
+    }, 100)
+}
+
+
+
+
 </script>
 
 <style lang="scss" scoped>
 .panel-tabs-wrapper {
     display: flex;
     flex-direction: column;
-    height: 100%;
     overflow: hidden;
 }
 
@@ -102,6 +132,6 @@ const onSwiperChange = (e: any) => {
 }
 
 .swiper-container {
-    height: 500rpx
+    // height: 500rpx
 }
 </style>
