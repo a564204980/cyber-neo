@@ -1,6 +1,6 @@
 <template>
     <view class="control-panel-container direction-column" :style="controlPanelStyle">
-        <view class="collapsible-content">
+        <view class="collapsible-content" :class="{ 'collapsed': activeTab != 0 }">
             <view class="input-area w-full">
                 <view class="input-area-head flex items-center justify-between">
                     <view class="input-area-head-left text-primary">
@@ -29,7 +29,7 @@
 import { getRects } from "@/utils";
 import PanelTabs from "./PanelTabs.vue"
 import Tag from "./Tag.vue"
-import { computed, getCurrentInstance, onMounted, ref, watch } from 'vue';
+import { computed, getCurrentInstance, nextTick, onMounted, ref, watch } from 'vue';
 
 interface Props {
     value?: string,
@@ -42,12 +42,12 @@ const emits = defineEmits(["send"])
 const instance = getCurrentInstance()
 
 const max = 50
-const activeTab = ref(1)
+const activeTab = ref(0)
 const inputValue = ref<string>("")
 const panelTabsHeight = ref<number>(0)
+const collapsibleContentHeight = ref<number>(0) // 缓存展开时的高度
 
 const controlPanelStyle = computed(() => {
-    console.log("props.parentHeight", props.parentHeight)
     return {
         height: props.parentHeight + 'px'
     }
@@ -57,17 +57,18 @@ watch(() => props.value, () => {
     inputValue.value = props.value || ""
 })
 
-watch(() => props.parentHeight, () => {
+watch(() => props.parentHeight, async () => {
+    await nextTick()
     getNodeInfos()
 }, { immediate: true })
 
-watch(activeTab, () => {
-    // 等待折叠动画完成后重新计算高度
-    // Wait for the collapse animation to finish before recalculating height
-    // console.log("activeTab changed to:", activeTab.value)
-    // setTimeout(() => {
-    //     getNodeInfos()
-    // }, 350)
+watch(activeTab, (val) => {
+    if (val === 0 && collapsibleContentHeight.value > 0) {
+        panelTabsHeight.value = (props.parentHeight || 0) - collapsibleContentHeight.value
+    }
+    setTimeout(() => {
+        getNodeInfos()
+    }, 350)
 })
 
 
@@ -87,23 +88,17 @@ const onTagClick = (item: { label: string }) => {
 }
 
 
-const getNodeInfos = () => {
-    setTimeout(async () => {
-        const nodes = await getRects([".control-panel-container", ".collapsible-content"], instance) as UniApp.NodeInfo[]
-        if (nodes && nodes.length > 0) {
-
-            console.log("这是container的", nodes[0]?.height)
-            console.log("这是collapsible-content的", nodes[1]?.height)
-            panelTabsHeight.value = (props.parentHeight || 0) - (nodes[1]?.height || 0)
-
-            console.log("panelTabsHeight", panelTabsHeight.value)
+const getNodeInfos = async () => {
+    const nodes = await getRects([".control-panel-container", ".collapsible-content"], instance) as UniApp.NodeInfo[]
+    if (nodes && nodes.length > 0) {
+        const contentHeight = nodes[1]?.height || 0
+        if (contentHeight > 0) {
+            collapsibleContentHeight.value = contentHeight
         }
-    }, 100)
+        panelTabsHeight.value = (props.parentHeight || 0) - contentHeight
+    }
 }
 
-// onMounted(() => {
-//     getNodeInfos()
-// })
 
 </script>
 
@@ -111,7 +106,7 @@ const getNodeInfos = () => {
 .control-panel-container {
     width: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     box-sizing: border-box;
     gap: 20rpx;
 }
@@ -121,14 +116,19 @@ const getNodeInfos = () => {
     max-height: 500rpx;
     opacity: 1;
     overflow: hidden;
+    flex-shrink: 0;
+
+
 }
 
-.collapsible-content .collapsed {
+.collapsed {
     max-height: 0;
     opacity: 0;
     margin: 0;
     padding: 0;
 }
+
+
 
 .input-area {
     box-sizing: border-box;

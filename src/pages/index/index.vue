@@ -125,15 +125,11 @@ const onDragEnd = (e: TouchEvent) => {
   }
 }
 
-const getNodeInfos = () => {
-  setTimeout(async () => {
-    const nodes = await getRects([".control-panel", ".drag-block-container"], instance) as UniApp.NodeInfo[]
-    if (nodes && nodes.length > 0) {
-      controlPanelHeight.value = (nodes[0]?.height || 0) - (nodes[1]?.height || 0)
-      console.log("nodes", controlPanelHeight.value)
-    }
-
-  }, 100)
+const getNodeInfos = async () => {
+  const nodes = await getRects([".control-panel", ".drag-block-container"], instance) as UniApp.NodeInfo[]
+  if (nodes && nodes.length > 0) {
+    controlPanelHeight.value = (nodes[0]?.height || 0) - (nodes[1]?.height || 0)
+  }
 }
 
 onMounted(() => {

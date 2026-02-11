@@ -14,7 +14,7 @@
             </view>
 
             <view class="section">
-                <view class="section-title text-white">运动方向</view>
+                <view class="section-title text-white">动画效果</view>
                 <view class="grid-container">
                     <view v-for="item in effectList" :key="item.value"
                         :class="{ active: animStore.effect === item.value }" @click="handleEffectChange(item.value)"
@@ -72,6 +72,10 @@ const handleEffectChange = (eff: Effect) => { }
 .anim-settings {
     padding: 40rpx;
     color: #fff;
+
+    .section {
+        margin-bottom: 20rpx;
+    }
 }
 
 .section-title {

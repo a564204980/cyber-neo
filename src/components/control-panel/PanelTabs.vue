@@ -80,14 +80,10 @@ const onSwiperChange = (e: any) => {
 
 
 const getSwiperHeight = async () => {
-    setTimeout(async () => {
-        const res = await getRects([".panel-tabs", ".tab-indicator-container"], instance) as UniApp.NodeInfo[]
-        if (res && res.length > 0) {
-
-            swiperHeight.value = (props.height || 0) - (res[0]?.height || 0) - (res[1]?.height || 0) - 20
-            console.log("swiperHeight", swiperHeight.value)
-        }
-    }, 100)
+    const res = await getRects([".panel-tabs", ".tab-indicator-container"], instance) as UniApp.NodeInfo[]
+    if (res && res.length > 0) {
+        swiperHeight.value = (props.height || 0) - (res[0]?.height || 0) - (res[1]?.height || 0) - 20
+    }
 }
 
 
@@ -129,9 +125,5 @@ const getSwiperHeight = async () => {
     height: 100%;
     background: #ff007f;
     transition: transform 0.3s ease;
-}
-
-.swiper-container {
-    // height: 500rpx
 }
 </style>
