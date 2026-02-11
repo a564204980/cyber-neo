@@ -1,77 +1,89 @@
 <template>
     <view class="anim-settings">
         <scroll-view scroll-y class="anim-settings-scroll">
-            <view class="section">
-                <view class="section-title">运动方向</view>
-                <view class="grid-container">
-                    <view v-for="item in directionList" :key="item.value"
-                        :class="{ active: animStore.direction === item.value }"
-                        @click="handleDirectionChange(item.value)" class="direction-item">
-                        <view class="icon material-icons">{{ item.icon }}</view>
-                        <text class="label">{{ item.label }}</text>
-                    </view>
-                </view>
-            </view>
-
-            <view class="section">
-                <view class="section-title text-white">动画效果</view>
-                <view class="grid-container">
-                    <view v-for="item in effectList" :key="item.value"
-                        :class="{ active: animStore.effect === item.value }" @click="handleEffectChange(item.value)"
-                        class="direction-item">
-                        <view class="icon material-icons">{{ item.icon }}</view>
-                        <text class="label">{{ item.label }}</text>
-                    </view>
-                </view>
-            </view>
-
-            <view class="anim-settings-panel">
-                <view class="font-bold stroke-panel-title flex items-center justify-between text-secondary">
-                    <view>动画效果参数</view>
-                    <switch :checked="isShowAnimSetting" @change="handleStrokeChange" color="#ff007f"
-                        style="transform:scale(0.7)" />
-                </view>
-                <view class="anim-settings-panel-container" :class="{ 'is-show': isShowAnimSetting }">
-                    <view class="anim-settings-panel-content">
-                        <view class="text-secondary">类型</view>
-                        <view class="animation-scale-type flex items-center justify-between">
-                            <view v-for="(item, index) in scaleTypeList" :key="index" class="animation-scale-item"
-                                :class="{ active: currentScaleTypeIndex === index }"
-                                @click="handleScaleTypeChange(index)">
-                                <text class="material-icons">{{ item.icon }}</text>
-                                <text>{{ item.label }}</text>
-                            </view>
+            <view style="padding:40rpx">
+                <view class="section">
+                    <view class="section-title">运动方向</view>
+                    <view class="grid-container">
+                        <view v-for="item in directionList" :key="item.value"
+                            :class="{ active: animStore.direction === item.value }"
+                            @click="handleDirectionChange(item.value)" class="direction-item">
+                            <view class="icon material-icons">{{ item.icon }}</view>
+                            <text class="label">{{ item.label }}</text>
                         </view>
                     </view>
-                    <view class="anim-settings-panel-content">
-                        <view class="text-secondary">速度</view>
-                        <Slider :minSize="1" :maxSize="30" v-model="animStore.zoomConfig.speed" />
+                </view>
+
+                <view class="section">
+                    <view class="section-title text-white">动画效果</view>
+                    <view class="grid-container">
+                        <view v-for="item in effectList" :key="item.value"
+                            :class="{ active: animStore.effect === item.value }" @click="handleEffectChange(item.value)"
+                            class="direction-item">
+                            <view class="icon material-icons">{{ item.icon }}</view>
+                            <text class="label">{{ item.label }}</text>
+                        </view>
                     </view>
-                    <view class="anim-settings-panel-content flex items-center justify-between">
-                        <view class="text-secondary">同步透明</view>
-                        <switch :checked="animStore.zoomConfig.opacity === 1" @change="handleOpacityChange"
-                            color="#ff007f" style="transform:scale(0.7)" />
+                </view>
+
+                <view class="anim-settings-panel">
+                    <view class="font-bold stroke-panel-title flex items-center justify-between text-secondary">
+                        <view>动画效果参数</view>
+                        <switch :checked="currentEffectEnabled" @change="handleStrokeChange" color="#ff007f"
+                            style="transform:scale(0.7)" />
+                    </view>
+
+                    <!-- 缩放参数面板 -->
+                    <view v-if="animStore.effect === 'zoom'" class="anim-settings-panel-container"
+                        :class="{ 'is-show': isShowAnimSetting }">
+                        <view class="anim-settings-panel-content">
+                            <view class="text-secondary">类型</view>
+                            <view class="animation-scale-type flex items-center justify-between">
+                                <view v-for="(item, index) in scaleTypeList" :key="index" class="animation-scale-item"
+                                    :class="{ active: currentScaleTypeIndex === index }"
+                                    @click="handleScaleTypeChange(index)">
+                                    <text class="material-icons">{{ item.icon }}</text>
+                                    <text>{{ item.label }}</text>
+                                </view>
+                            </view>
+                        </view>
+                        <view class="anim-settings-panel-content">
+                            <view class="text-secondary">速度</view>
+                            <Slider :minSize="1" :maxSize="30" v-model="animStore.zoomConfig.speed" />
+                        </view>
+                        <view class="anim-settings-panel-content flex items-center justify-between">
+                            <view class="text-secondary">同步透明</view>
+                            <switch :checked="animStore.zoomConfig.opacity === 1" @change="handleOpacityChange"
+                                color="#ff007f" style="transform:scale(0.7)" />
+                        </view>
+                    </view>
+
+                    <!-- 摇摆参数面板 -->
+                    <view v-if="animStore.effect === 'shake'" class="anim-settings-panel-container"
+                        :class="{ 'is-show': isShowAnimSetting }">
+                        <view class="anim-settings-panel-content">
+                            <view class="text-secondary">幅度</view>
+                            <Slider :minSize="1" :maxSize="100" v-model="animStore.shakeConfig.amplitude" />
+                        </view>
+                        <view class="anim-settings-panel-content">
+                            <view class="text-secondary">速度</view>
+                            <Slider :minSize="1" :maxSize="30" v-model="animStore.shakeConfig.speed" />
+                        </view>
+                        <view class="anim-settings-panel-content flex items-center justify-between">
+                            <view class="text-secondary">同步文字移动</view>
+                            <switch @change="handleSyncMoveChange" color="#ff007f" style="transform:scale(0.7)" />
+                        </view>
                     </view>
                 </view>
             </view>
 
-            <view class="section">
-                <view class="section-title text-white">运动方向</view>
-                <view class="grid-container">
-                    <view v-for="item in effectList" :key="item.value"
-                        :class="{ active: animStore.effect === item.value }" @click="handleEffectChange(item.value)"
-                        class="direction-item">
-                        <view class="icon material-icons">{{ item.icon }}</view>
-                        <text class="label">{{ item.label }}</text>
-                    </view>
-                </view>
-            </view>
+
         </scroll-view>
     </view>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useAnimStore } from "@/stores/anim";
 import { Direction, Effect } from "@/types/anim";
 import Slider from '@/components/common/Slider.vue';
@@ -101,18 +113,34 @@ const scaleTypeList = [
 const isShowAnimSetting = ref<boolean>(true)
 const currentScaleTypeIndex = ref<number>(0)
 
+
+const currentEffectEnabled = computed(() => {
+    // console.log("animStore", animStore.zoomConfig.enabled, animStore.shakeConfig.enabled)
+    if (animStore.effect === 'zoom') return animStore.zoomConfig.enabled
+    if (animStore.effect === 'shake') return animStore.shakeConfig.enabled
+    return false
+})
+
 const handleDirectionChange = (dir: Direction) => {
     animStore.updateDirection(dir);
 }
 
-const handleEffectChange = (eff: Effect) => { }
+const handleEffectChange = (eff: Effect) => {
+    animStore.updateEffect(eff);
 
-const handleStrokeChange = (e: any) => {
-    if (!e.detail.value) {
-        animStore.zoomConfig.type = "none"
-    } else {
-        animStore.zoomConfig.type = scaleTypeList[currentScaleTypeIndex.value].value
+    if (eff === 'zoom') {
+        isShowAnimSetting.value = animStore.zoomConfig.enabled
+    } else if (eff === 'shake') {
+        isShowAnimSetting.value = animStore.shakeConfig.enabled
     }
+}
+const handleStrokeChange = (e: any) => {
+    if (animStore.effect === 'zoom') {
+        animStore.zoomConfig.enabled = e.detail.value
+    } else if (animStore.effect === 'shake') {
+        animStore.shakeConfig.enabled = e.detail.value
+    }
+
     isShowAnimSetting.value = e.detail.value
 }
 
@@ -122,8 +150,11 @@ const handleScaleTypeChange = (index: number) => {
 }
 
 const handleOpacityChange = (e: any) => {
-    console.log("e", e.detail.value)
     animStore.zoomConfig.opacity = e.detail.value ? 1 : 0
+}
+
+const handleSyncMoveChange = (e: any) => {
+    animStore.shakeConfig.isSyncMove = e.detail.value
 }
 
 </script>
@@ -131,8 +162,9 @@ const handleOpacityChange = (e: any) => {
 <style lang="scss" scoped>
 .anim-settings {
     height: 100%;
-    padding: 40rpx;
-    color: #fff;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 
     .section {
         margin-bottom: 20rpx;
@@ -140,7 +172,8 @@ const handleOpacityChange = (e: any) => {
 }
 
 .anim-settings-scroll {
-    height: 100%;
+    flex: 1;
+    min-height: 0;
 }
 
 .section-title {

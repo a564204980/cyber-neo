@@ -4,7 +4,7 @@
             <!-- 弹幕移动 -->
             <view v-if="showDanmu" class="danmu-mover" :style="animStyle">
                 <!-- 动画承载 -->
-                <view class="danmu-zoom" :style="zoomAnimStyle">
+                <view class="danmu-zoom" :style="effectAnimStyle">
                     <text class="danmu-text" :style="danmuStyle">{{ displayText }}</text>
                 </view>
             </view>
@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, nextTick } from 'vue';
+import { computed, ref, watch, nextTick, CSSProperties } from 'vue';
 import { useStyleStore, useAnimStore } from '@/stores'
 import { hexToRgba } from '@/utils'
 
@@ -52,6 +52,7 @@ const wrapperStyle = computed(() => {
     }
 })
 
+// 弹幕文字样式
 const danmuStyle = computed(() => {
     const style: any = {
         color: store.currentColor,
@@ -74,9 +75,16 @@ const danmuStyle = computed(() => {
     return style
 })
 
+// 弹幕移动样式
 const animStyle = computed(() => {
-    const direction = animStore.direction
+    if (animStore.effect === "shake" && !animStore.shakeConfig.isSyncMove) {
+        return {
+            left: "50%",
+            transform: 'translateX(-50%) translateY(-50%)',
+        } as CSSProperties
+    }
 
+    const direction = animStore.direction
     const animNameMap = {
         left: "scroll-left",
         right: "scroll-right",
@@ -92,7 +100,7 @@ const animStyle = computed(() => {
     }
 })
 
-
+// 弹幕文字内容
 const displayText = computed(() => {
     if (animStore.direction === 'right') {
         return props.text.split('').reverse().join('')
@@ -100,21 +108,41 @@ const displayText = computed(() => {
     return props.text
 })
 
-const zoomAnimStyle = computed(() => {
-    const params = animStore.zoomParams
-    if (!params) return {}
-    const useOpacity = params.opacity === 1
+// 弹幕特效样式
+const effectAnimStyle = computed(() => {
+    const effect = animStore.effect
 
-    return {
-        '--scale-min': params.scaleMin,
-        '--scale-max': params.scaleMax,
-        '--opacity-min': useOpacity ? params.opacityMin : 1,
-        '--opacity-max': useOpacity ? params.opacityMax : 1,
-        animationName: params.animName,
-        animationDuration: params.duration + 's',
-        animationTimingFunction: params.easing,
-        animationIterationCount: params.iterationCount,
+    // 缩放效果
+    if (effect === 'zoom') {
+        const params = animStore.zoomParams
+        if (!params) return {}
+        const useOpacity = params.opacity === 1
+        return {
+            '--scale-min': params.scaleMin,
+            '--scale-max': params.scaleMax,
+            '--opacity-min': useOpacity ? params.opacityMin : 1,
+            '--opacity-max': useOpacity ? params.opacityMax : 1,
+            animationName: params.animName,
+            animationDuration: params.duration + 's',
+            animationTimingFunction: params.easing,
+            animationIterationCount: params.iterationCount,
+        }
     }
+    // 摇摆效果
+    if (effect === 'shake') {
+        console.log("effect", effect)
+        const params = animStore.shakeParams
+        if (!params) return {}
+        return {
+            '--shake-angle': params.angle + 'deg',
+            animationName: params.animName,
+            animationDuration: params.duration + 's',
+            animationTimingFunction: params.easing,
+            animationIterationCount: params.iterationCount,
+        }
+    }
+    // 无效果
+    return {}
 })
 
 
@@ -125,7 +153,7 @@ watch(() => props.text, async () => {
 });
 
 // CSS动画在运行过程中，不会实时响应CSS自定义变量
-watch(() => animStore.zoomParams, async () => {
+watch(() => [animStore.zoomParams, animStore.shakeParams], async () => {
     showDanmu.value = false;
     await nextTick();
     showDanmu.value = true;
@@ -283,6 +311,41 @@ watch(() => animStore.zoomParams, async () => {
         transform: scale(var(--scale-min));
         opacity: var(--opacity-min);
         filter: blur(0px);
+    }
+}
+
+/* 摇摆效果 */
+@keyframes shake {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    15% {
+        /* 快速甩到最大角度 */
+        transform: rotate(var(--shake-angle));
+    }
+
+    30% {
+        /* 回弹过头，到反方向的60% */
+        transform: rotate(calc(var(--shake-angle) * -0.6));
+    }
+
+    45% {
+        /* 再弹回来，幅度衰减 */
+        transform: rotate(calc(var(--shake-angle) * 0.35));
+    }
+
+    60% {
+        /* 继续衰减 */
+        transform: rotate(calc(var(--shake-angle) * -0.2));
+    }
+
+    75% {
+        transform: rotate(calc(var(--shake-angle) * 0.1));
+    }
+
+    100% {
+        transform: rotate(0deg);
     }
 }
 </style>

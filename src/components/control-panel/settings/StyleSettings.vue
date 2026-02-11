@@ -149,10 +149,14 @@ const onCustomColorClick = (target: 'text' | 'stroke') => {
 <style lang="scss" scoped>
 .style-settings {
     height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
 
 .style-settings-scroll {
-    height: 100%;
+    flex: 1;
+    min-height: 0;
 }
 
 .style-settings-wrapper {
