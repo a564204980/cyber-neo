@@ -1,7 +1,13 @@
 <template>
     <view class="danmu-board">
         <view class="content-wrapper flex items-center" :style="wrapperStyle">
-            <text v-if="showDanmu" class="danmu-text" :style="[danmuStyle, animStyle]">{{ displayText }}</text>
+            <!-- 弹幕移动 -->
+            <view v-if="showDanmu" class="danmu-mover" :style="animStyle">
+                <!-- 动画承载 -->
+                <view class="danmu-zoom" :style="zoomAnimStyle">
+                    <text class="danmu-text" :style="danmuStyle">{{ displayText }}</text>
+                </view>
+            </view>
         </view>
     </view>
 </template>
@@ -94,12 +100,36 @@ const displayText = computed(() => {
     return props.text
 })
 
+const zoomAnimStyle = computed(() => {
+    const params = animStore.zoomParams
+    if (!params) return {}
+    const useOpacity = params.opacity === 1
+
+    return {
+        '--scale-min': params.scaleMin,
+        '--scale-max': params.scaleMax,
+        '--opacity-min': useOpacity ? params.opacityMin : 1,
+        '--opacity-max': useOpacity ? params.opacityMax : 1,
+        animationName: params.animName,
+        animationDuration: params.duration + 's',
+        animationTimingFunction: params.easing,
+        animationIterationCount: params.iterationCount,
+    }
+})
+
 
 watch(() => props.text, async () => {
     showDanmu.value = false;
     await nextTick();
     showDanmu.value = true;
 });
+
+// CSS动画在运行过程中，不会实时响应CSS自定义变量
+watch(() => animStore.zoomParams, async () => {
+    showDanmu.value = false;
+    await nextTick();
+    showDanmu.value = true;
+}, { deep: true });
 
 
 </script>
@@ -125,12 +155,16 @@ watch(() => props.text, async () => {
     flex-shrink: 0;
 }
 
-.danmu-text {
+.danmu-mover {
     position: absolute;
     top: 50%;
     left: 0;
     white-space: nowrap;
     will-change: transform;
+    z-index: 99;
+}
+
+.danmu-text {
     font-weight: bold;
     z-index: 99;
 }
@@ -182,6 +216,73 @@ watch(() => props.text, async () => {
         transform: translate(-50%, 100vh);
         top: 0;
         left: 50%;
+    }
+}
+
+/* 霓虹呼吸效果 */
+@keyframes zoom-breathe {
+    0% {
+        transform: scale(var(--scale-min));
+        opacity: var(--opacity-min);
+    }
+
+    50% {
+        transform: scale(var(--scale-max));
+        opacity: var(--opacity-max);
+    }
+
+    100% {
+        transform: scale(var(--scale-min));
+        opacity: var(--opacity-min);
+    }
+}
+
+/* 霓虹心跳效果 */
+@keyframes zoom-pulse {
+    0% {
+        transform: scale(var(--scale-min));
+        opacity: var(--opacity-min);
+    }
+
+    40% {
+        transform: scale(var(--scale-max));
+        opacity: var(--opacity-max);
+    }
+
+    50% {
+        transform: scale(calc(var(--scale-min) * 0.95));
+        opacity: calc(var(--opacity-min) * 0.8);
+    }
+
+    60% {
+        transform: scale(var(--scale-max));
+        opacity: var(--opacity-max);
+    }
+
+    100% {
+        transform: scale(var(--scale-min));
+        opacity: var(--opacity-min);
+    }
+}
+
+/* 登场柔光效果 - 模拟光晕呼吸 */
+@keyframes zoom-entry-breathe {
+    0% {
+        transform: scale(var(--scale-min));
+        opacity: var(--opacity-min);
+        filter: blur(0px);
+    }
+
+    50% {
+        transform: scale(var(--scale-max));
+        opacity: var(--opacity-max);
+        filter: blur(1px);
+    }
+
+    100% {
+        transform: scale(var(--scale-min));
+        opacity: var(--opacity-min);
+        filter: blur(0px);
     }
 }
 </style>

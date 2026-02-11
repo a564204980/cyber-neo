@@ -1,6 +1,6 @@
 <template>
     <view class="anim-settings">
-        <scroll-view class="scroll-view">
+        <scroll-view scroll-y class="anim-settings-scroll">
             <view class="section">
                 <view class="section-title">运动方向</view>
                 <view class="grid-container">
@@ -25,6 +25,36 @@
                 </view>
             </view>
 
+            <view class="anim-settings-panel">
+                <view class="font-bold stroke-panel-title flex items-center justify-between text-secondary">
+                    <view>动画效果参数</view>
+                    <switch :checked="isShowAnimSetting" @change="handleStrokeChange" color="#ff007f"
+                        style="transform:scale(0.7)" />
+                </view>
+                <view class="anim-settings-panel-container" :class="{ 'is-show': isShowAnimSetting }">
+                    <view class="anim-settings-panel-content">
+                        <view class="text-secondary">类型</view>
+                        <view class="animation-scale-type flex items-center justify-between">
+                            <view v-for="(item, index) in scaleTypeList" :key="index" class="animation-scale-item"
+                                :class="{ active: currentScaleTypeIndex === index }"
+                                @click="handleScaleTypeChange(index)">
+                                <text class="material-icons">{{ item.icon }}</text>
+                                <text>{{ item.label }}</text>
+                            </view>
+                        </view>
+                    </view>
+                    <view class="anim-settings-panel-content">
+                        <view class="text-secondary">速度</view>
+                        <Slider :minSize="1" :maxSize="30" v-model="animStore.zoomConfig.speed" />
+                    </view>
+                    <view class="anim-settings-panel-content flex items-center justify-between">
+                        <view class="text-secondary">同步透明</view>
+                        <switch :checked="animStore.zoomConfig.opacity === 1" @change="handleOpacityChange"
+                            color="#ff007f" style="transform:scale(0.7)" />
+                    </view>
+                </view>
+            </view>
+
             <view class="section">
                 <view class="section-title text-white">运动方向</view>
                 <view class="grid-container">
@@ -41,8 +71,10 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import { useAnimStore } from "@/stores/anim";
 import { Direction, Effect } from "@/types/anim";
+import Slider from '@/components/common/Slider.vue';
 
 const animStore = useAnimStore();
 
@@ -60,22 +92,55 @@ const effectList = [
     { label: "随机", value: "shuffle", icon: "shuffle" },
 ] as const;
 
+const scaleTypeList = [
+    { label: "默认呼吸", icon: "radio_button_checked", value: "default" },
+    { label: "心跳脉冲", icon: "ecg_heart", value: "pulse" },
+    { label: "登场柔光", icon: "wand_stars", value: "entry-breathe" },
+] as const;
+
+const isShowAnimSetting = ref<boolean>(true)
+const currentScaleTypeIndex = ref<number>(0)
+
 const handleDirectionChange = (dir: Direction) => {
     animStore.updateDirection(dir);
 }
 
 const handleEffectChange = (eff: Effect) => { }
 
+const handleStrokeChange = (e: any) => {
+    if (!e.detail.value) {
+        animStore.zoomConfig.type = "none"
+    } else {
+        animStore.zoomConfig.type = scaleTypeList[currentScaleTypeIndex.value].value
+    }
+    isShowAnimSetting.value = e.detail.value
+}
+
+const handleScaleTypeChange = (index: number) => {
+    currentScaleTypeIndex.value = index
+    animStore.zoomConfig.type = scaleTypeList[index].value
+}
+
+const handleOpacityChange = (e: any) => {
+    console.log("e", e.detail.value)
+    animStore.zoomConfig.opacity = e.detail.value ? 1 : 0
+}
+
 </script>
 
 <style lang="scss" scoped>
 .anim-settings {
+    height: 100%;
     padding: 40rpx;
     color: #fff;
 
     .section {
         margin-bottom: 20rpx;
     }
+}
+
+.anim-settings-scroll {
+    height: 100%;
 }
 
 .section-title {
@@ -122,6 +187,54 @@ const handleEffectChange = (eff: Effect) => { }
             color: #ff007f;
             background: rgba(255, 0, 127, 0.1);
         }
+    }
+}
+
+.anim-settings-panel {
+    padding-left: 10rpx;
+}
+
+.anim-settings-panel-content {
+    font-size: 26rpx;
+    margin: 10rpx 0 20rpx;
+
+}
+
+.anim-settings-panel-container {
+    opacity: 0;
+    max-height: 0;
+    transition: max-height 0.3s ease, opacity 0.3s ease
+}
+
+.anim-settings-panel-container.is-show {
+    max-height: 800rpx;
+    opacity: 1;
+}
+
+
+.animation-scale-type {
+    margin-top: 20rpx;
+    gap: 20rpx;
+}
+
+.animation-scale-item {
+    padding: 20rpx 0;
+    background: #2b2b2b;
+    border-radius: 20rpx;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 24rpx;
+    transition: all 0.3s;
+    border: 2rpx solid transparent;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &.active {
+        background: rgba(255, 0, 127, 0.1);
+        color: #ff007f;
+        border-color: #ff007f;
+        font-weight: bold;
     }
 }
 </style>

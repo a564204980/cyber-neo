@@ -42,7 +42,7 @@ const emits = defineEmits(["send"])
 const instance = getCurrentInstance()
 
 const max = 50
-const activeTab = ref(0)
+const activeTab = ref(1)
 const inputValue = ref<string>("")
 const panelTabsHeight = ref<number>(0)
 const collapsibleContentHeight = ref<number>(0) // 缓存展开时的高度
@@ -62,13 +62,19 @@ watch(() => props.parentHeight, async () => {
     getNodeInfos()
 }, { immediate: true })
 
+// 监听tab切换，用缓存的展开高度计算
 watch(activeTab, (val) => {
-    if (val === 0 && collapsibleContentHeight.value > 0) {
-        panelTabsHeight.value = (props.parentHeight || 0) - collapsibleContentHeight.value
+    if (collapsibleContentHeight.value > 0) {
+        if (val === 0) {
+            panelTabsHeight.value = (props.parentHeight || 0) - collapsibleContentHeight.value
+        } else {
+            panelTabsHeight.value = (props.parentHeight || 0)
+        }
+    } else {
+        setTimeout(() => {
+            getNodeInfos()
+        }, 350)
     }
-    setTimeout(() => {
-        getNodeInfos()
-    }, 350)
 })
 
 

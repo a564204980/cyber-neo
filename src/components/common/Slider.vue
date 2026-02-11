@@ -79,7 +79,7 @@ watch(() => props.modelValue, (newValue) => {
  * 获取滑块容器宽度
 */
 const getSliderWidth = async () => {
-    const rects = await getRects(".slider-track", instance)
+    const rects = await getRects(".slider-track", instance) as UniApp.NodeInfo[]
     sliderWidth.value = rects[0]?.width ?? 0
     trackRect.value = rects[0]
 }
