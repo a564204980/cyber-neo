@@ -15,15 +15,18 @@
                 </view>
 
                 <view class="section">
-                    <view class="section-title text-white">动画效果</view>
-                    <view class="grid-container">
+                    <view class="flex justify-between">
+                        <view class="section-title text-white">动画效果</view>
+                        <view class="text-secondary more-text">往左滑动查看更多</view>
+                    </view>
+                    <scroll-view scroll-x enable-flex class="grid-container">
                         <view v-for="item in effectList" :key="item.value"
                             :class="{ active: animStore.effect === item.value }" @click="handleEffectChange(item.value)"
                             class="direction-item">
                             <view class="icon material-icons">{{ item.icon }}</view>
                             <text class="label">{{ item.label }}</text>
                         </view>
-                    </view>
+                    </scroll-view>
                 </view>
 
                 <view class="anim-settings-panel">
@@ -74,6 +77,19 @@
                             <switch @change="handleSyncMoveChange" color="#ff007f" style="transform:scale(0.7)" />
                         </view>
                     </view>
+
+                    <!-- 波浪参数面板 -->
+                    <view v-if="animStore.effect === 'wave'" class="anim-settings-panel-container"
+                        :class="{ 'is-show': isShowAnimSetting }">
+                        <view class="anim-settings-panel-content">
+                            <view class="text-secondary">幅度</view>
+                            <Slider :minSize="1" :maxSize="140" v-model="animStore.waveConfig.amplitude" />
+                        </view>
+                        <view class="anim-settings-panel-content">
+                            <view class="text-secondary">速度</view>
+                            <Slider :minSize="1" :maxSize="20" v-model="animStore.waveConfig.speed" />
+                        </view>
+                    </view>
                 </view>
             </view>
 
@@ -101,7 +117,8 @@ const effectList = [
     { label: "缩放", value: "zoom", icon: "zoom_out_map" },
     { label: "摇摆", value: "shake", icon: "vibration" },
     { label: "波浪", value: "wave", icon: "waves" },
-    { label: "随机", value: "shuffle", icon: "shuffle" },
+    { label: "乱串", value: "random", icon: "shuffle" },
+    { label: "跳动", value: "jump", icon: "shuffle" },
 ] as const;
 
 const scaleTypeList = [
@@ -115,9 +132,9 @@ const currentScaleTypeIndex = ref<number>(0)
 
 
 const currentEffectEnabled = computed(() => {
-    // console.log("animStore", animStore.zoomConfig.enabled, animStore.shakeConfig.enabled)
     if (animStore.effect === 'zoom') return animStore.zoomConfig.enabled
     if (animStore.effect === 'shake') return animStore.shakeConfig.enabled
+    if (animStore.effect === 'wave') return animStore.waveConfig.enabled
     return false
 })
 
@@ -134,11 +151,18 @@ const handleEffectChange = (eff: Effect) => {
         isShowAnimSetting.value = animStore.shakeConfig.enabled
     }
 }
+
+// 是否开启动画效果
 const handleStrokeChange = (e: any) => {
-    if (animStore.effect === 'zoom') {
-        animStore.zoomConfig.enabled = e.detail.value
-    } else if (animStore.effect === 'shake') {
-        animStore.shakeConfig.enabled = e.detail.value
+    const configMap = {
+        zoom: animStore.zoomConfig,
+        shake: animStore.shakeConfig,
+        wave: animStore.waveConfig,
+    }
+
+    const config = configMap[animStore.effect as keyof typeof configMap];
+    if (config) {
+        config.enabled = e.detail.value;
     }
 
     isShowAnimSetting.value = e.detail.value
@@ -171,6 +195,10 @@ const handleSyncMoveChange = (e: any) => {
     }
 }
 
+.more-text {
+    padding-right: 20rpx;
+}
+
 .anim-settings-scroll {
     flex: 1;
     min-height: 0;
@@ -184,8 +212,8 @@ const handleSyncMoveChange = (e: any) => {
 
 .grid-container {
     display: flex;
-    justify-content: space-between;
-    gap: 20rpx
+    white-space: nowrap;
+    width: 100%;
 }
 
 .direction-item {
@@ -194,6 +222,12 @@ const handleSyncMoveChange = (e: any) => {
     align-items: center;
     gap: 16rpx;
     flex: 1;
+    margin-right: 30rpx;
+    flex-shrink: 0;
+
+    &:last-child {
+        margin-right: 0;
+    }
 
     .icon {
         width: 120rpx;

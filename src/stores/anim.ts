@@ -1,5 +1,11 @@
 import { defineStore } from "pinia";
-import type { Direction, Effect, ShakeConfig, ZoomConfig } from "@/types/anim";
+import type {
+  Direction,
+  Effect,
+  ShakeConfig,
+  WaveConfig,
+  ZoomConfig,
+} from "@/types/anim";
 import { computed, ref } from "vue";
 
 export const useAnimStore = defineStore(
@@ -24,6 +30,13 @@ export const useAnimStore = defineStore(
       amplitude: 80, // 摇摆幅度
       speed: 5, // 摇摆速度
       isSyncMove: true, // 同步文字移动
+      enabled: true, // 是否启用
+    });
+
+    // 波浪配置
+    const waveConfig = ref<WaveConfig>({
+      amplitude: 15, // 波浪幅度
+      speed: 5, // 波浪速度
       enabled: true, // 是否启用
     });
 
@@ -101,6 +114,21 @@ export const useAnimStore = defineStore(
       };
     });
 
+    const waveParams = computed(() => {
+      if (!waveConfig.value.enabled || effect.value !== "wave") return null;
+
+      const { amplitude, speed } = waveConfig.value;
+      return {
+        // 范围1-50，映射偏移量2-30px
+        offset: (amplitude / 50) * 28 + 2,
+        // 范围1-30，映射时间0.4-3s
+        duration: Math.max(0.4, 3 - (speed / 30) * 2.6),
+        easing: "ease-in-out",
+        iterationCount: "infinite",
+        animName: "wave",
+      };
+    });
+
     /**
      * 更新运动方向
      */
@@ -124,6 +152,8 @@ export const useAnimStore = defineStore(
       zoomConfig,
       shakeParams,
       shakeConfig,
+      waveParams,
+      waveConfig,
     };
   },
   {

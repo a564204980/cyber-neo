@@ -1,7 +1,7 @@
 export type Direction = "left" | "right" | "up" | "down";
 
 // 动画效果
-export type Effect = "zoom" | "shake" | "wave" | "shuffle" | "none";
+export type Effect = "zoom" | "shake" | "wave" | "random" | "jump" | "none";
 
 // 缩放类型
 export type ZoomType = "default" | "pulse" | "entry-breathe" | "none";
@@ -19,5 +19,12 @@ export interface ShakeConfig {
   amplitude: number; // 摇摆幅度
   speed: number; // 摇摆速度
   isSyncMove: boolean; // 同步文字移动
+  enabled: boolean; // 是否启用
+}
+
+// 波浪参数
+export interface WaveConfig {
+  amplitude: number; // 波浪幅度
+  speed: number; // 波浪速度
   enabled: boolean; // 是否启用
 }

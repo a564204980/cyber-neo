@@ -141,6 +141,21 @@ const effectAnimStyle = computed(() => {
             animationIterationCount: params.iterationCount,
         }
     }
+
+
+    // 波浪效果
+    if (effect === "wave") {
+        const params = animStore.waveParams
+        if (!params) return {}
+        return {
+            "--wave-offset": params.offset + "px",
+            animationName: params.animName,
+            animationDuration: params.duration + "s",
+            animationTimingFunction: params.easing,
+            animationIterationCount: params.iterationCount,
+        }
+    }
+
     // 无效果
     return {}
 })
@@ -153,7 +168,7 @@ watch(() => props.text, async () => {
 });
 
 // CSS动画在运行过程中，不会实时响应CSS自定义变量
-watch(() => [animStore.zoomParams, animStore.shakeParams], async () => {
+watch(() => [animStore.zoomParams, animStore.shakeParams, animStore.waveParams], async () => {
     showDanmu.value = false;
     await nextTick();
     showDanmu.value = true;
@@ -346,6 +361,19 @@ watch(() => [animStore.zoomParams, animStore.shakeParams], async () => {
 
     100% {
         transform: rotate(0deg);
+    }
+}
+
+/* 波浪效果 */
+@keyframes wave {
+
+    0%,
+    100% {
+        transform: translateY(calc(var(--wave-offset) * -0.8));
+    }
+
+    50% {
+        transform: translateY(var(--wave-offset));
     }
 }
 </style>
