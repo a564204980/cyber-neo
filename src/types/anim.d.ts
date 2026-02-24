@@ -1,7 +1,7 @@
 export type Direction = "left" | "right" | "up" | "down";
 
 // 动画效果
-export type Effect = "zoom" | "shake" | "wave" | "random" | "jump" | "none";
+export type Effect = "zoom" | "shake" | "wave" | "jump" | "none";
 
 // 缩放类型
 export type ZoomType = "default" | "pulse" | "entry-breathe" | "none";
@@ -26,5 +26,12 @@ export interface ShakeConfig {
 export interface WaveConfig {
   amplitude: number; // 波浪幅度
   speed: number; // 波浪速度
+  enabled: boolean; // 是否启用
+}
+
+// 跳动参数
+export interface JumpConfig {
+  amplitude: number; // 跳动幅度
+  speed: number; // 跳动速度
   enabled: boolean; // 是否启用
 }

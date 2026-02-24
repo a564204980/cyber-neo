@@ -1,30 +1,42 @@
 <template>
   <view>
-    <CustomNavBar :nav-style="navStyle" />
+    <CustomNavBar :nav-style="navStyle" v-show="!isFullscreen" />
     <view class="container">
 
-      <view class="preview-area"
-        :style="{ height: (100 - panelHeightPercent - 10) + '%', transition: isDragging ? 'none' : 'height 0.2s' }">
+      <view class="preview-area" :style="{
+        height: isFullscreen ? '100%' : (100 - panelHeightPercent - 10) + '%',
+        transition: isDragging ? 'none' : 'height 0.2s',
+        paddingTop: isFullscreen ? '0' : '170rpx'
+      }">
         <DanmuBoard class="w-full h-full" :text="danmuText" :rotation="danmuRotation" />
       </view>
 
       <!-- 添加 flex column 布局 -->
-      <view class="control-panel flex direction-column"
-        :style="{ height: panelHeightPercent - 3 + '%', transition: isDragging ? 'none' : 'height 0.2s' }">
+      <view class="control-panel flex direction-column" :style="controlPanelStyle">
 
-        <!-- 拖拽条部分 -->
-        <view class="drag-block-container w-full flex justify-center items-center direction-column"
-          @touchstart="onDragStart" @touchmove.stop.prevent="onDragMove" @touchend="onDragEnd">
-          <view class="drag-block"></view>
-          <view class="text-secondary ">下拉预览</view>
+        <view class="flex items-center justify-between control-panel-header">
+          <view class="text-secondary flex items-center full-screen" @click="isFullscreen = true">
+            <text class="material-icons">fullscreen</text>全屏
+          </view>
+          <!-- 拖拽条部分 -->
+          <view class="drag-block-container flex justify-center items-center direction-column" @touchstart="onDragStart"
+            @touchmove.stop.prevent="onDragMove" @touchend="onDragEnd">
+            <view class="drag-block"></view>
+            <view class="text-secondary">下拉预览</view>
+          </view>
+          <view class="text-secondary flex items-center pause-btn">
+            <text class="material-icons">stop_circle</text>暂停
+          </view>
         </view>
 
         <!-- ControlPanel 自动填满剩余空间，且 height:0 确保内部滚动正常 -->
-        <ControlPanel @send="onSend" :value="danmuText" class="flex-1 h-0" :parentHeight="controlPanelHeight" />
+        <ControlPanel v-show="!isFullscreen" @send="onSend" :value="danmuText" class="flex-1 h-0"
+          :parentHeight="controlPanelHeight" />
       </view>
     </view>
 
     <GlobalPopup ref="popupRef" />
+
   </view>
 </template>
 
@@ -34,11 +46,14 @@ import CustomNavBar from '@/components/CustomNavBar.vue';
 import ControlPanel from '@/components/control-panel/ControlPanel.vue';
 import GlobalPopup from '@/components/common/GlobalPopup.vue';
 import { usePopupStore } from '@/stores';
-import { computed, getCurrentInstance, onMounted, ref } from 'vue';
+import { computed, getCurrentInstance, onMounted, ref, watch } from 'vue';
 import { getRects } from '@/utils';
 
 const popupStore = usePopupStore()
 const instance = getCurrentInstance()
+
+const menuButtonInfo = uni.getMenuButtonBoundingClientRect()
+const windowWidth = uni.getSystemInfoSync().windowWidth
 
 const popupRef = ref()
 const danmuText = ref<string>()
@@ -48,9 +63,14 @@ const startHeight = ref<number>(0) // 记录触摸起始时的面板高度
 const isDragging = ref(false); // 标记是否正在拖拽
 const windowHeight = uni.getSystemInfoSync().windowHeight; // 获取屏幕高度用于计算比例
 const controlPanelHeight = ref<number>(0)
+const isFullscreen = ref(false) // 是否全屏
 
 // 弹幕旋转角度
 const danmuRotation = computed(() => {
+  if (isFullscreen.value) {
+    return 90;
+  }
+
   const maxH = 70;
   const minH = 26;
   const current = panelHeightPercent.value;
@@ -83,6 +103,15 @@ const navStyle = computed(() => {
   };
 })
 
+// 控制面板样式
+const controlPanelStyle = computed(() => {
+  return {
+    height: !isFullscreen.value ? panelHeightPercent.value - 3 + '%' : '0',
+    transition: isDragging.value ? 'none' : 'height 0.2s'
+  }
+})
+
+
 
 const onSend = (value: string) => {
   danmuText.value = value
@@ -113,6 +142,9 @@ const onDragMove = (e: TouchEvent) => {
 
   panelHeightPercent.value = newHeight;
 }
+
+
+
 
 // 拖拽结束
 const onDragEnd = (e: TouchEvent) => {
@@ -168,15 +200,25 @@ onMounted(() => {
   box-sizing: border-box;
 }
 
+.control-panel-header {
+  padding: 0 40rpx;
+}
+
 .drag-block-container {
   padding: 40rpx 0 0;
 }
 
 .drag-block {
-  width: 10%;
+  width: 100%;
   height: 8rpx;
   background: #454549;
   border-radius: 50rpx;
   margin-bottom: 10rpx;
+}
+
+.full-screen,
+.pause-btn {
+  padding-top: 50rpx;
+  gap: 4rpx;
 }
 </style>

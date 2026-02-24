@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import type {
   Direction,
   Effect,
+  JumpConfig,
   ShakeConfig,
   WaveConfig,
   ZoomConfig,
@@ -37,6 +38,13 @@ export const useAnimStore = defineStore(
     const waveConfig = ref<WaveConfig>({
       amplitude: 15, // 波浪幅度
       speed: 5, // 波浪速度
+      enabled: true, // 是否启用
+    });
+
+    // 跳动配置
+    const jumpConfig = ref<JumpConfig>({
+      amplitude: 80, // 跳动幅度
+      speed: 5, // 跳动速度
       enabled: true, // 是否启用
     });
 
@@ -114,6 +122,7 @@ export const useAnimStore = defineStore(
       };
     });
 
+    // 计算波浪参数
     const waveParams = computed(() => {
       if (!waveConfig.value.enabled || effect.value !== "wave") return null;
 
@@ -126,6 +135,22 @@ export const useAnimStore = defineStore(
         easing: "ease-in-out",
         iterationCount: "infinite",
         animName: "wave",
+      };
+    });
+
+    const jumpParams = computed(() => {
+      if (!jumpConfig.value.enabled || effect.value !== "jump") return null;
+
+      const { amplitude, speed } = jumpConfig.value;
+      return {
+        // 2px-40px
+        offset: (amplitude / 100) * 180 + 10,
+        // 缩放1.05-1.3
+        scale: 1 + (amplitude / 100) * 0.35,
+        duration: Math.max(0.2, 1.5 - (speed / 30) * 1.3), // 持续时间
+        easing: "ease-in-out",
+        iterationCount: "infinite", // 动画次数
+        animName: "jump", // 动画名称
       };
     });
 
@@ -154,6 +179,8 @@ export const useAnimStore = defineStore(
       shakeConfig,
       waveParams,
       waveConfig,
+      jumpParams,
+      jumpConfig,
     };
   },
   {
@@ -163,5 +190,5 @@ export const useAnimStore = defineStore(
         setItem: (key: string, value: string) => uni.setStorageSync(key, value),
       },
     },
-  } as any,
+  } as any
 );

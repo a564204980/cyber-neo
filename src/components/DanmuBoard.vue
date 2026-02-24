@@ -156,6 +156,22 @@ const effectAnimStyle = computed(() => {
         }
     }
 
+    console.log("effect", effect)
+
+    // 跳动效果
+    if (effect === "jump") {
+        const params = animStore.jumpParams
+        if (!params) return {}
+        return {
+            "--jump-offset": params.offset + "px",
+            "--jump-scale": params.scale,
+            animationName: params.animName,
+            animationDuration: params.duration + "s",
+            animationTimingFunction: params.easing,
+            animationIterationCount: params.iterationCount,
+        }
+    }
+
     // 无效果
     return {}
 })
@@ -168,7 +184,7 @@ watch(() => props.text, async () => {
 });
 
 // CSS动画在运行过程中，不会实时响应CSS自定义变量
-watch(() => [animStore.zoomParams, animStore.shakeParams, animStore.waveParams], async () => {
+watch(() => [animStore.zoomParams, animStore.shakeParams, animStore.waveParams, animStore.jumpParams], async () => {
     showDanmu.value = false;
     await nextTick();
     showDanmu.value = true;
@@ -374,6 +390,34 @@ watch(() => [animStore.zoomParams, animStore.shakeParams, animStore.waveParams],
 
     50% {
         transform: translateY(var(--wave-offset));
+    }
+}
+
+@keyframes jump {
+
+    0%,
+    100% {
+        transform: translateY(0) scale(1, 1);
+    }
+
+    20% {
+        /* 蓄力：轻微压扁 */
+        transform: translateY(0) scale(1.1, 0.9);
+    }
+
+    45% {
+        /* 最高点：轻微拉长 */
+        transform: translateY(calc(var(--jump-offset) * -1)) scale(0.9, 1.1);
+    }
+
+    70% {
+        /* 落地压扁 */
+        transform: translateY(0) scale(1.1, 0.9);
+    }
+
+    85% {
+        /* 小回弹 */
+        transform: translateY(calc(var(--jump-offset) * -0.2)) scale(0.95, 1.05);
     }
 }
 </style>

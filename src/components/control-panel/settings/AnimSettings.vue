@@ -90,6 +90,19 @@
                             <Slider :minSize="1" :maxSize="20" v-model="animStore.waveConfig.speed" />
                         </view>
                     </view>
+
+                    <!-- 跳动参数面板 -->
+                    <view v-if="animStore.effect === 'jump'" class="anim-settings-panel-container"
+                        :class="{ 'is-show': isShowAnimSetting }">
+                        <view class="anim-settings-panel-content">
+                            <view class="text-secondary">幅度</view>
+                            <Slider :minSize="1" :maxSize="100" v-model="animStore.jumpConfig.amplitude" />
+                        </view>
+                        <view class="anim-settings-panel-content">
+                            <view class="text-secondary">速度</view>
+                            <Slider :minSize="1" :maxSize="30" v-model="animStore.jumpConfig.speed" />
+                        </view>
+                    </view>
                 </view>
             </view>
 
@@ -117,7 +130,6 @@ const effectList = [
     { label: "缩放", value: "zoom", icon: "zoom_out_map" },
     { label: "摇摆", value: "shake", icon: "vibration" },
     { label: "波浪", value: "wave", icon: "waves" },
-    { label: "乱串", value: "random", icon: "shuffle" },
     { label: "跳动", value: "jump", icon: "shuffle" },
 ] as const;
 
@@ -135,6 +147,7 @@ const currentEffectEnabled = computed(() => {
     if (animStore.effect === 'zoom') return animStore.zoomConfig.enabled
     if (animStore.effect === 'shake') return animStore.shakeConfig.enabled
     if (animStore.effect === 'wave') return animStore.waveConfig.enabled
+    if (animStore.effect === 'jump') return animStore.jumpConfig.enabled
     return false
 })
 

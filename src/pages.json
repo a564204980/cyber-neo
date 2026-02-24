@@ -4,7 +4,10 @@
       "path": "pages/index/index",
       "style": {
         "navigationBarTitleText": "赛博弹幕",
-        "navigationStyle": "custom"
+        "navigationStyle": "custom",
+        "navigationBarRightButton": {
+          "hide": false
+        }
       }
     }
   ],

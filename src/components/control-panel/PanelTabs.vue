@@ -31,7 +31,7 @@
 import AnimSettings from "./settings/AnimSettings.vue"
 import StyleSettings from "./settings/StyleSettings.vue"
 import EffectSettings from "./settings/EffectSettings.vue"
-import { computed, getCurrentInstance, onMounted, ref, watch } from "vue"
+import { computed, getCurrentInstance, nextTick, onMounted, ref, watch } from "vue"
 import { getRects } from "@/utils"
 
 interface Props {
@@ -69,8 +69,8 @@ const panelTabsStyle = computed(() => {
 
 const onTabClick = (index: number) => {
     activeTabIndex.value = index
-    getSwiperHeight()
     emit('update:modelValue', index)
+    nextTick(() => getSwiperHeight())
 }
 
 const onSwiperChange = (e: any) => {
@@ -111,6 +111,7 @@ const getSwiperHeight = async () => {
 }
 
 .tab-indicator-container {
+    flex-shrink: 0;
     position: relative;
     width: 100%;
     height: 4rpx;
