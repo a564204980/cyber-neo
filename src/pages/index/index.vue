@@ -3,7 +3,7 @@
     <CustomNavBar :nav-style="navStyle" v-show="!isFullscreen" />
     <view class="container">
 
-      <view class="preview-area" :style="{
+      <view @click="if (isFullscreen) isFullscreen = false" class="preview-area" :style="{
         height: isFullscreen ? '100%' : (100 - panelHeightPercent - 10) + '%',
         transition: isDragging ? 'none' : 'height 0.2s',
         paddingTop: isFullscreen ? '0' : '170rpx'
@@ -11,7 +11,7 @@
         <DanmuBoard class="w-full h-full" :text="danmuText" :rotation="danmuRotation" />
       </view>
 
-      <!-- 添加 flex column 布局 -->
+
       <view class="control-panel flex direction-column" :style="controlPanelStyle">
 
         <view class="flex items-center justify-between control-panel-header">

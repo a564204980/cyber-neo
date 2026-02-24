@@ -156,8 +156,6 @@ const effectAnimStyle = computed(() => {
         }
     }
 
-    console.log("effect", effect)
-
     // 跳动效果
     if (effect === "jump") {
         const params = animStore.jumpParams
@@ -189,6 +187,13 @@ watch(() => [animStore.zoomParams, animStore.shakeParams, animStore.waveParams, 
     await nextTick();
     showDanmu.value = true;
 }, { deep: true });
+
+watch(() => props.rotation, () => {
+    showDanmu.value = false;
+    nextTick(() => {
+        showDanmu.value = true;
+    })
+})
 
 
 </script>
