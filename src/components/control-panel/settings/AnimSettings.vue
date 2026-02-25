@@ -171,6 +171,7 @@ const handleStrokeChange = (e: any) => {
         zoom: animStore.zoomConfig,
         shake: animStore.shakeConfig,
         wave: animStore.waveConfig,
+        jump: animStore.jumpConfig,
     }
 
     const config = configMap[animStore.effect as keyof typeof configMap];

@@ -4,9 +4,16 @@
       "path": "pages/index/index",
       "style": {
         "navigationBarTitleText": "赛博弹幕",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/preview/preview",
+      "style": {
+        "navigationBarTitleText": "赛博弹幕",
         "navigationStyle": "custom",
         "navigationBarRightButton": {
-          "hide": false
+          "hide": true
         }
       }
     }

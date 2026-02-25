@@ -30,6 +30,7 @@ import { getRects } from "@/utils";
 import PanelTabs from "./PanelTabs.vue"
 import Tag from "./Tag.vue"
 import { computed, getCurrentInstance, nextTick, onMounted, ref, watch } from 'vue';
+import { useAppStore } from '@/stores/app'
 
 interface Props {
     value?: string,
@@ -38,18 +39,30 @@ interface Props {
 
 const props = defineProps<Props>()
 
+const appStore = useAppStore()
+
 const emits = defineEmits(["send"])
 const instance = getCurrentInstance()
 
 const max = 50
-const activeTab = ref(1)
 const inputValue = ref<string>("")
 const panelTabsHeight = ref<number>(0)
-const collapsibleContentHeight = ref<number>(0) // 缓存展开时的高度
+
+const collapsibleContentHeight = computed({
+    get: () => appStore.collapsibleContentHeight,
+    set: (val) => { appStore.collapsibleContentHeight = val }
+})
 
 const controlPanelStyle = computed(() => {
     return {
         height: props.parentHeight + 'px'
+    }
+})
+
+const activeTab = computed({
+    get: () => appStore.activeTab,
+    set: (val) => {
+        appStore.activeTab = val
     }
 })
 
@@ -67,15 +80,18 @@ watch(activeTab, (val) => {
     if (collapsibleContentHeight.value > 0) {
         if (val === 0) {
             panelTabsHeight.value = (props.parentHeight || 0) - collapsibleContentHeight.value
+
+            console.log("panelTabsHeight====1", panelTabsHeight.value)
         } else {
             panelTabsHeight.value = (props.parentHeight || 0)
+            console.log("panelTabsHeight====2", panelTabsHeight.value)
         }
     } else {
         setTimeout(() => {
             getNodeInfos()
         }, 350)
     }
-})
+}, { immediate: true })
 
 
 
@@ -98,11 +114,19 @@ const getNodeInfos = async () => {
     const nodes = await getRects([".control-panel-container", ".collapsible-content"], instance) as UniApp.NodeInfo[]
     if (nodes && nodes.length > 0) {
         const contentHeight = nodes[1]?.height || 0
+        console.log("contentHeight", contentHeight)
         if (contentHeight > 0) {
+            console.log("tab1的高度", contentHeight)
             collapsibleContentHeight.value = contentHeight
+
+        } else {
+            panelTabsHeight.value = (props.parentHeight || 0) - contentHeight
         }
-        panelTabsHeight.value = (props.parentHeight || 0) - contentHeight
+
+
     }
+
+    console.log("panelTabsHeight", panelTabsHeight.value)
 }
 
 
@@ -171,6 +195,6 @@ const getNodeInfos = async () => {
 }
 
 .tag-container {
-    padding: 0 40rpx;
+    padding: 0 10rpx;
 }
 </style>

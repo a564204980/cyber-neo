@@ -3,19 +3,19 @@
     <CustomNavBar :nav-style="navStyle" v-show="!isFullscreen" />
     <view class="container">
 
-      <view @click="if (isFullscreen) isFullscreen = false" class="preview-area" :style="{
+      <view @click="isFullscreen = false" class="preview-area" :style="{
         height: isFullscreen ? '100%' : (100 - panelHeightPercent - 10) + '%',
         transition: isDragging ? 'none' : 'height 0.2s',
         paddingTop: isFullscreen ? '0' : '170rpx'
       }">
-        <DanmuBoard class="w-full h-full" :text="danmuText" :rotation="danmuRotation" />
+        <DanmuBoard class="w-full h-full" :text="danmuText" :rotation="danmuRotation" :is-paused="isPaused" />
       </view>
 
 
       <view class="control-panel flex direction-column" :style="controlPanelStyle">
 
         <view class="flex items-center justify-between control-panel-header">
-          <view class="text-secondary flex items-center full-screen" @click="isFullscreen = true">
+          <view class="text-secondary flex items-center full-screen" @click="handleFullscreen">
             <text class="material-icons">fullscreen</text>全屏
           </view>
           <!-- 拖拽条部分 -->
@@ -24,8 +24,9 @@
             <view class="drag-block"></view>
             <view class="text-secondary">下拉预览</view>
           </view>
-          <view class="text-secondary flex items-center pause-btn">
-            <text class="material-icons">stop_circle</text>暂停
+          <view class="text-secondary flex items-center pause-btn" @click="handleStop">
+            <text class="material-icons">{{ isPaused ? 'play_circle' : 'stop_circle' }}</text>{{ isPaused ? '播放' : '暂停'
+            }}
           </view>
         </view>
 
@@ -52,8 +53,6 @@ import { getRects } from '@/utils';
 const popupStore = usePopupStore()
 const instance = getCurrentInstance()
 
-const menuButtonInfo = uni.getMenuButtonBoundingClientRect()
-const windowWidth = uni.getWindowInfo().windowWidth
 
 const popupRef = ref()
 const danmuText = ref<string>()
@@ -64,6 +63,7 @@ const isDragging = ref(false); // 标记是否正在拖拽
 const windowHeight = uni.getWindowInfo().windowHeight; // 获取屏幕高度用于计算比例
 const controlPanelHeight = ref<number>(0)
 const isFullscreen = ref(false) // 是否全屏
+const isPaused = ref(false) // 是否暂停
 
 // 弹幕旋转角度
 const danmuRotation = computed(() => {
@@ -164,10 +164,26 @@ const getNodeInfos = async () => {
   }
 }
 
+
+const handleFullscreen = () => {
+  isFullscreen.value = true
+  uni.redirectTo({
+    url: '/pages/preview/preview'
+  })
+}
+
+const handleStop = () => {
+  isPaused.value = !isPaused.value
+}
+
+
 onMounted(() => {
   popupStore.setPopupRef(popupRef.value.popupRef)
 
-  getNodeInfos()
+  setTimeout(() => {
+    getNodeInfos()
+  }, 300)
+
 })
 </script>
 

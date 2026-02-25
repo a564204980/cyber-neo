@@ -25,11 +25,13 @@ const showDanmu = ref(true);
 interface Props {
     text?: string
     rotation?: number // 旋转角度
+    isPaused?: boolean // 是否暂停
 }
 
 const props = withDefaults(defineProps<Props>(), {
     text: '我是弹幕',
-    rotation: 0
+    rotation: 0,
+    isPaused: false
 })
 
 const sysInfo = uni.getWindowInfo();
@@ -37,9 +39,8 @@ const windowWidth = sysInfo.windowWidth;
 const windowHeight = sysInfo.windowHeight;
 
 const wrapperStyle = computed(() => {
-    const targetWidth = windowHeight * 0.76;
     const progress = props.rotation / 90;
-    const calcWidth = windowWidth + (targetWidth - windowWidth) * progress;
+    const calcWidth = windowWidth + (windowHeight - windowWidth) * progress;
 
     const moveDistance = props.rotation > 0 ? `${calcWidth}px` : "100vw"
 
@@ -77,6 +78,15 @@ const danmuStyle = computed(() => {
 
 // 弹幕移动样式
 const animStyle = computed(() => {
+    if (props.isPaused) {
+        return {
+            left: "50%",
+            top: "50%",
+            transform: 'translateX(-50%) translateY(-50%)',
+            animationName: 'none'
+        } as CSSProperties
+    }
+
     if (animStore.effect === "shake" && !animStore.shakeConfig.isSyncMove) {
         return {
             left: "50%",
