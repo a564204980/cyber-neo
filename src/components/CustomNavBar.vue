@@ -17,7 +17,7 @@ interface Props {
 const props = defineProps<Props>()
 
 
-const statusBarHeight = uni.getSystemInfoSync().statusBarHeight || 0
+const statusBarHeight = uni.getWindowInfo().statusBarHeight || 0
 
 </script>
 

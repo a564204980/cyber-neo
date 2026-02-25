@@ -32,7 +32,7 @@ const props = withDefaults(defineProps<Props>(), {
     rotation: 0
 })
 
-const sysInfo = uni.getSystemInfoSync();
+const sysInfo = uni.getWindowInfo();
 const windowWidth = sysInfo.windowWidth;
 const windowHeight = sysInfo.windowHeight;
 

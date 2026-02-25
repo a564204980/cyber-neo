@@ -53,7 +53,7 @@ const popupStore = usePopupStore()
 const instance = getCurrentInstance()
 
 const menuButtonInfo = uni.getMenuButtonBoundingClientRect()
-const windowWidth = uni.getSystemInfoSync().windowWidth
+const windowWidth = uni.getWindowInfo().windowWidth
 
 const popupRef = ref()
 const danmuText = ref<string>()
@@ -61,7 +61,7 @@ const panelHeightPercent = ref<number>(70) // 定义面板的初始高度比例
 const startY = ref<number>(0) // 记录触摸开始时的Y坐标
 const startHeight = ref<number>(0) // 记录触摸起始时的面板高度
 const isDragging = ref(false); // 标记是否正在拖拽
-const windowHeight = uni.getSystemInfoSync().windowHeight; // 获取屏幕高度用于计算比例
+const windowHeight = uni.getWindowInfo().windowHeight; // 获取屏幕高度用于计算比例
 const controlPanelHeight = ref<number>(0)
 const isFullscreen = ref(false) // 是否全屏
 
