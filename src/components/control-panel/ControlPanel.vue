@@ -21,15 +21,14 @@
         </view>
 
 
-        <PanelTabs class="panel-tabs" v-model="activeTab" :height="panelTabsHeight" />
+        <PanelTabs class="panel-tabs flex-1" style="min-height: 0" v-model="activeTab" />
     </view>
 </template>
 
 <script setup lang="ts">
-import { getRects } from "@/utils";
 import PanelTabs from "./PanelTabs.vue"
 import Tag from "./Tag.vue"
-import { computed, getCurrentInstance, nextTick, onMounted, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useAppStore } from '@/stores/app'
 
 interface Props {
@@ -42,16 +41,9 @@ const props = defineProps<Props>()
 const appStore = useAppStore()
 
 const emits = defineEmits(["send"])
-const instance = getCurrentInstance()
 
 const max = 50
 const inputValue = ref<string>("")
-const panelTabsHeight = ref<number>(0)
-
-const collapsibleContentHeight = computed({
-    get: () => appStore.collapsibleContentHeight,
-    set: (val) => { appStore.collapsibleContentHeight = val }
-})
 
 const controlPanelStyle = computed(() => {
     return {
@@ -70,31 +62,6 @@ watch(() => props.value, () => {
     inputValue.value = props.value || ""
 })
 
-watch(() => props.parentHeight, async () => {
-    await nextTick()
-    getNodeInfos()
-}, { immediate: true })
-
-// 监听tab切换，用缓存的展开高度计算
-watch(activeTab, (val) => {
-    if (collapsibleContentHeight.value > 0) {
-        if (val === 0) {
-            panelTabsHeight.value = (props.parentHeight || 0) - collapsibleContentHeight.value
-
-            console.log("panelTabsHeight====1", panelTabsHeight.value)
-        } else {
-            panelTabsHeight.value = (props.parentHeight || 0)
-            console.log("panelTabsHeight====2", panelTabsHeight.value)
-        }
-    } else {
-        setTimeout(() => {
-            getNodeInfos()
-        }, 350)
-    }
-}, { immediate: true })
-
-
-
 const onInput = (e: any) => {
     inputValue.value = e.detail.value
 }
@@ -107,26 +74,6 @@ const onConfirm = () => {
 const onTagClick = (item: { label: string }) => {
     inputValue.value = item.label
     emits("send", inputValue.value)
-}
-
-
-const getNodeInfos = async () => {
-    const nodes = await getRects([".control-panel-container", ".collapsible-content"], instance) as UniApp.NodeInfo[]
-    if (nodes && nodes.length > 0) {
-        const contentHeight = nodes[1]?.height || 0
-        console.log("contentHeight", contentHeight)
-        if (contentHeight > 0) {
-            console.log("tab1的高度", contentHeight)
-            collapsibleContentHeight.value = contentHeight
-
-        } else {
-            panelTabsHeight.value = (props.parentHeight || 0) - contentHeight
-        }
-
-
-    }
-
-    console.log("panelTabsHeight", panelTabsHeight.value)
 }
 
 

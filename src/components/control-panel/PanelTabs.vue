@@ -1,5 +1,5 @@
 <template>
-    <view class="panel-tabs-wrapper" :style="panelTabsStyle">
+    <view class="panel-tabs-wrapper">
         <view class="flex items-center text-secondary panel-tabs">
             <view v-for="(tab, index) in tabs" :key="tab.value"
                 class="panel-tab font-bold flex items-center justify-center" @click="onTabClick(index)"
@@ -31,17 +31,15 @@
 import AnimSettings from "./settings/AnimSettings.vue"
 import StyleSettings from "./settings/StyleSettings.vue"
 import EffectSettings from "./settings/EffectSettings.vue"
-import { computed, getCurrentInstance, nextTick, onMounted, ref, watch } from "vue"
+import { getCurrentInstance, nextTick, onMounted, ref, watch } from "vue"
 import { getRects } from "@/utils"
 
 interface Props {
     modelValue: number,
-    height?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
     modelValue: 0,
-    height: 0
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -58,19 +56,14 @@ const swiperHeight = ref<number>(0)
 
 watch(() => props.modelValue, (val) => {
     activeTabIndex.value = val
-})
-
-const panelTabsStyle = computed(() => {
-    getSwiperHeight()
-    return {
-        height: props.height - 20 + 'px'
-    }
+    // tab 切换时 collapsible-content 有 300ms CSS 过渡，等过渡结束后重新测量
+    setTimeout(() => getSwiperHeight(), 350)
 })
 
 const onTabClick = (index: number) => {
     activeTabIndex.value = index
     emit('update:modelValue', index)
-    nextTick(() => getSwiperHeight())
+    setTimeout(() => getSwiperHeight(), 350)
 }
 
 const onSwiperChange = (e: any) => {
@@ -78,17 +71,23 @@ const onSwiperChange = (e: any) => {
     emit('update:modelValue', e.detail.current)
 }
 
-
+// 测量自身 wrapper 高度，减去 tabs 和 indicator 的高度，得到 swiper 可用高度
 const getSwiperHeight = async () => {
-    const res = await getRects([".panel-tabs", ".tab-indicator-container"], instance) as UniApp.NodeInfo[]
-    if (res && res.length > 0) {
-        swiperHeight.value = (props.height || 0) - (res[0]?.height || 0) - (res[1]?.height || 0) - 20
+    const res = await getRects([".panel-tabs-wrapper", ".panel-tabs", ".tab-indicator-container"], instance) as UniApp.NodeInfo[]
+    if (res && res.length === 3) {
+        const wrapperH = res[0]?.height || 0
+        const tabsH = res[1]?.height || 0
+        const indicatorH = res[2]?.height || 0
+        const h = wrapperH - tabsH - indicatorH
+        if (h > 0) {
+            swiperHeight.value = h
+        }
     }
 }
 
-
-
-
+onMounted(() => {
+    setTimeout(() => getSwiperHeight(), 350)
+})
 </script>
 
 <style lang="scss" scoped>
@@ -96,6 +95,7 @@ const getSwiperHeight = async () => {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    height: 100%;
 }
 
 .panel-tabs {
