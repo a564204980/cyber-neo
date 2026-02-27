@@ -8,7 +8,7 @@
         transition: isDragging ? 'none' : 'height 0.2s',
         paddingTop: isFullscreen ? '0' : '170rpx'
       }">
-        <DanmuBoard class="w-full h-full" :text="danmuText" :rotation="danmuRotation" :is-paused="isPaused" />
+        <DanmuBoard class="w-full h-full" :text="danmuText" :rotation="danmuRotation" :is-paused="animStore.isPause" />
       </view>
 
 
@@ -25,7 +25,8 @@
             <view class="text-secondary">下拉预览</view>
           </view>
           <view class="text-secondary flex items-center pause-btn" @click="handleStop">
-            <text class="material-icons">{{ isPaused ? 'play_circle' : 'stop_circle' }}</text>{{ isPaused ? '播放' : '暂停'
+            <text class="material-icons">{{ animStore.isPause ? 'play_circle' : 'stop_circle' }}</text>{{
+              animStore.isPause ? '播放' : '暂停'
             }}
           </view>
         </view>
@@ -46,13 +47,13 @@ import DanmuBoard from '@/components/DanmuBoard.vue';
 import CustomNavBar from '@/components/CustomNavBar.vue';
 import ControlPanel from '@/components/control-panel/ControlPanel.vue';
 import GlobalPopup from '@/components/common/GlobalPopup.vue';
-import { usePopupStore } from '@/stores';
+import { usePopupStore, useAnimStore } from '@/stores';
 import { computed, getCurrentInstance, onMounted, ref, watch } from 'vue';
 import { getRects } from '@/utils';
 
+const animStore = useAnimStore()
 const popupStore = usePopupStore()
 const instance = getCurrentInstance()
-
 
 const popupRef = ref()
 const danmuText = ref<string>()
@@ -63,7 +64,6 @@ const isDragging = ref(false); // 标记是否正在拖拽
 const windowHeight = uni.getWindowInfo().windowHeight; // 获取屏幕高度用于计算比例
 const controlPanelHeight = ref<number>(0)
 const isFullscreen = ref(false) // 是否全屏
-const isPaused = ref(false) // 是否暂停
 
 // 弹幕旋转角度
 const danmuRotation = computed(() => {
@@ -111,13 +111,9 @@ const controlPanelStyle = computed(() => {
   }
 })
 
-
-
 const onSend = (value: string) => {
   danmuText.value = value
 }
-
-
 
 // 触摸开始
 const onDragStart = (e: TouchEvent) => {
@@ -142,9 +138,6 @@ const onDragMove = (e: TouchEvent) => {
 
   panelHeightPercent.value = newHeight;
 }
-
-
-
 
 // 拖拽结束
 const onDragEnd = (e: TouchEvent) => {
@@ -173,7 +166,7 @@ const handleFullscreen = () => {
 }
 
 const handleStop = () => {
-  isPaused.value = !isPaused.value
+  animStore.isPause = !animStore.isPause
 }
 
 

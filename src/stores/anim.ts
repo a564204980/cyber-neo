@@ -16,6 +16,7 @@ export const useAnimStore = defineStore(
     const speed = ref(50); // 速度
     const isLoop = ref(true); // 是否循环
     const effect = ref<Effect>("none"); // 动画效果
+    const isPause = ref(false); // 是否暂停
 
     // 缩放配置
     const zoomConfig = ref<ZoomConfig>({
@@ -168,7 +169,16 @@ export const useAnimStore = defineStore(
       effect.value = eff;
     };
 
+    /**
+     * 更新暂停状态
+     */
+    const updatePause = (pause: boolean) => {
+      isPause.value = pause;
+    };
+
     return {
+      isPause,
+      updatePause,
       updateDirection,
       direction,
       effect,
@@ -190,5 +200,5 @@ export const useAnimStore = defineStore(
         setItem: (key: string, value: string) => uni.setStorageSync(key, value),
       },
     },
-  } as any
+  } as any,
 );

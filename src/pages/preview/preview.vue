@@ -1,14 +1,16 @@
 <template>
     <view @click="handleClose" class="page">
-        <DanmuBoard class="w-full h-full" :text="'我是弹幕'" :rotation="90" />
+        <DanmuBoard class="w-full h-full" :text="'我是弹幕'" :rotation="90" :is-paused="animStore.isPause" />
     </view>
 </template>
 
 <script setup lang="ts">
 import DanmuBoard from '@/components/DanmuBoard.vue';
+import { useAnimStore } from '@/stores';
+
+const animStore = useAnimStore()
 
 const handleClose = () => {
-    console.log("2222")
     uni.redirectTo({
         url: '/pages/index/index'
     })

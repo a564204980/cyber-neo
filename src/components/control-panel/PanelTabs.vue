@@ -56,7 +56,6 @@ const swiperHeight = ref<number>(0)
 
 watch(() => props.modelValue, (val) => {
     activeTabIndex.value = val
-    // tab 切换时 collapsible-content 有 300ms CSS 过渡，等过渡结束后重新测量
     setTimeout(() => getSwiperHeight(), 350)
 })
 
