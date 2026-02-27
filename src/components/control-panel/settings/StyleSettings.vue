@@ -50,6 +50,13 @@
                         <Slider v-model="strokeOpacityDisplay" :minSize="store.MIN_STROKE_OPACITY"
                             :maxSize="store.MAX_STROKE_OPACITY * 10" :step="store.STROKE_OPACITY_STEP * 10" />
                     </view>
+
+                    <view class="stroke-panel-config-container">
+                        <view class="stroke-panel-config-title">发光/模糊</view>
+                        <Slider @change="onStrokeBlurChange" @update:modelValue="onStrokeBlurChange"
+                            :minSize="store.MIN_STROKE_BLUR" :maxSize="store.MAX_STROKE_BLUR"
+                            :model-value="store.strokeConfig.blur" />
+                    </view>
                 </view>
             </view>
         </scroll-view>
@@ -131,6 +138,14 @@ const onStrokeColorClick = (index: number) => {
  */
 const onStrokeWidthChange = (value: number) => {
     store.updateStrokeWidth(value)
+}
+
+/**
+ * 描边模糊度改变
+ * @param value 模糊度
+ */
+const onStrokeBlurChange = (value: number) => {
+    store.updateStrokeBlur(value)
 }
 
 

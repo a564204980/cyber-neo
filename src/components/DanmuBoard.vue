@@ -60,17 +60,29 @@ const danmuStyle = computed(() => {
         fontSize: store.fontSize + 'rpx',
     }
 
-    const { color, width, opacity } = store.currentStroke
+    const { color, width, opacity, blur } = store.currentStroke
     const enabled = store.strokeConfig.enabled
 
-    if (enabled && width > 0) {
+    if (enabled && (width > 0 || blur > 0)) {
         const rgbaColor = hexToRgba(color, opacity)
-        style.textShadow = `
-            ${width}rpx ${width}rpx 0 ${rgbaColor},
-            ${width}rpx ${-width}rpx 0 ${rgbaColor},
-            ${-width}rpx ${width}rpx 0 ${rgbaColor},
-            ${-width}rpx ${-width}rpx 0 ${rgbaColor}
-        `
+        let shadow = ''
+
+        if (width > 0) {
+            shadow = `
+                ${width}rpx ${width}rpx 0 ${rgbaColor},
+                ${width}rpx ${-width}rpx 0 ${rgbaColor},
+                ${-width}rpx ${width}rpx 0 ${rgbaColor},
+                ${-width}rpx ${-width}rpx 0 ${rgbaColor}
+            `
+        }
+
+        if (blur > 0) {
+            if (shadow) shadow += ', '
+            // 为了提升发光效果，这里叠加了两个模糊半径
+            shadow += `0 0 ${blur}rpx ${rgbaColor}, 0 0 ${blur * 1.5}rpx ${rgbaColor}`
+        }
+
+        style.textShadow = shadow
     }
 
     return style

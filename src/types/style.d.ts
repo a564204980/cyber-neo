@@ -24,4 +24,5 @@ export interface StrokeConfig {
   width: number; // 描边粗细
   opacity: number; // 描边透明度
   colorConfig: ColorConfig;
+  blur: number; // 模糊
 }

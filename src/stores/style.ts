@@ -8,6 +8,7 @@ const SYSTEM_CONSTRATNTS = {
   strokeWidth: { min: 0, max: 10, unit: "rpx" },
   strokeOpacity: { min: 0, max: 1, step: 0.1 },
   textLength: { max: 50 },
+  strokeBlur: { min: 0, max: 100, unit: "rpx" },
 } as const;
 
 export const useStyleStore = defineStore(
@@ -31,6 +32,7 @@ export const useStyleStore = defineStore(
           color: "",
         },
       },
+      blur: 0,
     });
 
     const colorList = ref([...DEFAULT_COLOR_PRESETS]);
@@ -64,6 +66,7 @@ export const useStyleStore = defineStore(
         color: color,
         width: strokeConfig.value.width,
         opacity: strokeConfig.value.opacity,
+        blur: strokeConfig.value.blur,
       };
     });
 
@@ -151,6 +154,15 @@ export const useStyleStore = defineStore(
       strokeConfig.value.opacity = Math.min(Math.max(opacity, 0), 1);
     };
 
+    /**
+     * 设置描边模糊度
+     * @param blur 描边模糊度
+     */
+    const updateStrokeBlur = (blur: number) => {
+      const { min, max } = SYSTEM_CONSTRATNTS.strokeBlur;
+      strokeConfig.value.blur = Math.min(Math.max(Number(blur), min), max);
+    };
+
     return {
       // 状态
       fontSize,
@@ -169,6 +181,7 @@ export const useStyleStore = defineStore(
       updateStrokeColor,
       updateStrokeOpacity,
       updateStrokeCustomColor,
+      updateStrokeBlur,
 
       MIN_FONT_SIZE: SYSTEM_CONSTRATNTS.fontSize.min,
       MAX_FONT_SIZE: SYSTEM_CONSTRATNTS.fontSize.max,
@@ -177,6 +190,8 @@ export const useStyleStore = defineStore(
       MIN_STROKE_OPACITY: SYSTEM_CONSTRATNTS.strokeOpacity.min,
       MAX_STROKE_OPACITY: SYSTEM_CONSTRATNTS.strokeOpacity.max,
       STROKE_OPACITY_STEP: SYSTEM_CONSTRATNTS.strokeOpacity.step,
+      MIN_STROKE_BLUR: SYSTEM_CONSTRATNTS.strokeBlur.min,
+      MAX_STROKE_BLUR: SYSTEM_CONSTRATNTS.strokeBlur.max,
     };
   },
   {
