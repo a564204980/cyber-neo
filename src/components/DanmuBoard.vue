@@ -1,9 +1,12 @@
 <template>
     <view class="danmu-board">
-        <view class="content-wrapper flex items-center" :style="wrapperStyle">
-            <!-- 弹幕移动 -->
+        <!-- Canvas 特效模式：铺满整个弹幕区域 -->
+        <CanvasRender v-if="isCanvasEffect" :effectType="effectStore.currentTextEffect" :text="displayText"
+            :fontSize="fontPx" :isPaused="props.isPaused" :direction="animStore.direction"
+            :config="effectStore.neonFlowConfig" :rotation="props.rotation" />
+        <!-- 普通 CSS 模式：保留原有的 mover/zoom 层 -->
+        <view v-else class="content-wrapper flex items-center" :style="wrapperStyle">
             <view v-if="showDanmu" class="danmu-mover" :style="animStyle">
-                <!-- 动画承载 -->
                 <view class="danmu-zoom" :style="effectAnimStyle">
                     <view :style="neonWrapperStyle">
                         <text class="danmu-text" :style="danmuStyle">{{ displayText }}</text>
@@ -18,12 +21,23 @@
 import { computed, ref, watch, nextTick, CSSProperties } from 'vue';
 import { useStyleStore, useAnimStore, useEffectStore } from '@/stores'
 import { hexToRgba } from '@/utils'
+import CanvasRender from './CanvasRender.vue';
 
 const store = useStyleStore()
 const animStore = useAnimStore()
 const effectStore = useEffectStore()
 
 const showDanmu = ref(true);
+
+const CANVAS_EFFECTS = new Set(['neon-flow'])
+const isCanvasEffect = computed(() =>
+    CANVAS_EFFECTS.has(effectStore.currentTextEffect)
+    && effectStore.neonFlowConfig.enabled
+)
+
+// 因为 store.fontSize 是 rpx 单位，在 canvas 里要用 px 画，必须通过 uni.upx2px 换算
+const fontPx = computed(() => uni.upx2px(store.fontSize))
+
 
 interface Props {
     text?: string
@@ -119,20 +133,28 @@ const neonWrapperStyle = computed(() => {
     return {}
 })
 
+// 判断是否全屏（当 rotation = 90度时代表全屏）
+const isFullscreen = computed(() => props.rotation === 90)
+
 // 弹幕移动样式
 const animStyle = computed(() => {
+    const baseTop = isFullscreen.value ? "50%" : "45%"
+
+    // 暂停状态
     if (props.isPaused) {
         return {
             left: "50%",
-            top: "50%",
+            top: baseTop,
             transform: 'translateX(-50%) translateY(-50%)',
             animationName: 'none'
         } as CSSProperties
     }
 
+    // 摇摆效果
     if (animStore.effect === "shake" && !animStore.shakeConfig.isSyncMove) {
         return {
             left: "50%",
+            top: baseTop,
             transform: 'translateX(-50%) translateY(-50%)',
         } as CSSProperties
     }
@@ -146,6 +168,7 @@ const animStyle = computed(() => {
     }
 
     return {
+        top: baseTop,
         animationName: animNameMap[direction] || "scroll-left",
         animationDuration: '10s',
         animationTimingFunction: 'linear',

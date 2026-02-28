@@ -4,7 +4,7 @@
     <view class="container">
 
       <view @click="isFullscreen = false" class="preview-area" :style="{
-        height: isFullscreen ? '100%' : (100 - panelHeightPercent - 10) + '%',
+        height: isFullscreen ? '100%' : (100 - panelHeightPercent - 2) + '%',
         transition: isDragging ? 'none' : 'height 0.2s',
         paddingTop: isFullscreen ? '0' : '170rpx'
       }">
@@ -189,7 +189,6 @@ onMounted(() => {
 
 .preview-area {
   background-color: #000;
-  height: 20%;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -4,7 +4,7 @@ import { DEFAULT_COLOR_PRESETS } from "@/config/color-presets";
 import type { CustomColorData, ColorConfig, StrokeConfig } from "@/types/style";
 
 const SYSTEM_CONSTRATNTS = {
-  fontSize: { min: 50, max: 300, unit: "rpx" },
+  fontSize: { min: 50, max: 260, unit: "rpx" },
   strokeWidth: { min: 0, max: 10, unit: "rpx" },
   strokeOpacity: { min: 0, max: 1, step: 0.1 },
   textLength: { max: 50 },
