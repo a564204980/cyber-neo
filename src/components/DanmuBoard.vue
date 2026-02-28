@@ -5,7 +5,9 @@
             <view v-if="showDanmu" class="danmu-mover" :style="animStyle">
                 <!-- 动画承载 -->
                 <view class="danmu-zoom" :style="effectAnimStyle">
-                    <text class="danmu-text" :style="danmuStyle">{{ displayText }}</text>
+                    <view :style="neonWrapperStyle">
+                        <text class="danmu-text" :style="danmuStyle">{{ displayText }}</text>
+                    </view>
                 </view>
             </view>
         </view>
@@ -14,11 +16,12 @@
 
 <script setup lang="ts">
 import { computed, ref, watch, nextTick, CSSProperties } from 'vue';
-import { useStyleStore, useAnimStore } from '@/stores'
+import { useStyleStore, useAnimStore, useEffectStore } from '@/stores'
 import { hexToRgba } from '@/utils'
 
 const store = useStyleStore()
 const animStore = useAnimStore()
+const effectStore = useEffectStore()
 
 const showDanmu = ref(true);
 
@@ -85,7 +88,35 @@ const danmuStyle = computed(() => {
         style.textShadow = shadow
     }
 
+    const neonCfg = effectStore.neonFlowConfig
+    if (effectStore.currentTextEffect === 'neon-flow' && neonCfg.enabled) {
+        style.color = neonCfg.colors[0]
+        const glowPx = neonCfg.glowIntensity * 3  // 滑块 1-10 → 3-30px
+        style.filter = [
+            `drop-shadow(0 0 ${glowPx * 0.4}px ${neonCfg.colors[0]})`,
+            `drop-shadow(0 0 ${glowPx}px ${neonCfg.colors[0]})`,
+        ].join(' ')
+        style.textShadow = 'none'
+    }
+
     return style
+})
+
+// 霓虹包裹层动画
+const neonWrapperStyle = computed(() => {
+    const neonCfg = effectStore.neonFlowConfig
+
+    if (effectStore.currentTextEffect === 'neon-flow' && neonCfg.enabled) {
+        const durationSec = Math.max(1, 11 - neonCfg.speed).toFixed(1)
+        return {
+            animationName: 'neon-hue-rotate',
+            animationDuration: `${durationSec}s`,
+            animationTimingFunction: 'linear',
+            animationIterationCount: 'infinite',
+        }
+    }
+
+    return {}
 })
 
 // 弹幕移动样式
@@ -445,6 +476,66 @@ watch(() => props.rotation, () => {
     85% {
         /* 小回弹 */
         transform: translateY(calc(var(--jump-offset) * -0.2)) scale(0.95, 1.05);
+    }
+}
+
+
+/* 闪烁 - 警灯节奏：两色交替双闪 */
+@keyframes neon-hue-rotate {
+
+    /* 色1：第1闪 亮 */
+    0% {
+        filter: hue-rotate(0deg) brightness(2.2);
+    }
+
+    /* 色1：熄灭 */
+    10% {
+        filter: hue-rotate(0deg) brightness(0.15);
+    }
+
+    /* 色1：第2闪 亮 */
+    20% {
+        filter: hue-rotate(0deg) brightness(2.2);
+    }
+
+    /* 色1：熄灭，准备切换 */
+    30% {
+        filter: hue-rotate(0deg) brightness(0.05);
+    }
+
+    /* 切换到色2 */
+    35% {
+        filter: hue-rotate(160deg) brightness(0.05);
+    }
+
+    /* 色2：第1闪 亮 */
+    45% {
+        filter: hue-rotate(160deg) brightness(2.2);
+    }
+
+    /* 色2：熄灭 */
+    55% {
+        filter: hue-rotate(160deg) brightness(0.15);
+    }
+
+    /* 色2：第2闪 亮 */
+    65% {
+        filter: hue-rotate(160deg) brightness(2.2);
+    }
+
+    /* 色2：熄灭，准备切回 */
+    75% {
+        filter: hue-rotate(160deg) brightness(0.05);
+    }
+
+    /* 切回色1 */
+    80% {
+        filter: hue-rotate(0deg) brightness(0.05);
+    }
+
+    /* 色1 第1闪（下一循环起始） */
+    100% {
+        filter: hue-rotate(0deg) brightness(2.2);
     }
 }
 </style>

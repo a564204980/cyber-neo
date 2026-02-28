@@ -11,12 +11,16 @@
                     </view>
                 </view>
             </view>
+
+            <TextEffectPanel v-if="activeIndex === 0" />
         </scroll-view>
     </view>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import TextEffectPanel from './TextEffectComponents/TextEffectPanel.vue';
+
 
 
 const activeIndex = ref<number>(0)
@@ -25,6 +29,8 @@ const list = [
     { label: "文字动效", value: "text" },
     { label: "背景特效", value: "canvas" }
 ]
+
+
 
 
 const onItemClick = (index: number) => {

@@ -12,6 +12,7 @@
       "style": {
         "navigationBarTitleText": "赛博弹幕",
         "navigationStyle": "custom",
+        "navigationBarTextStyle": "white",
         "navigationBarRightButton": {
           "hide": true
         }
