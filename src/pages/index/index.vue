@@ -1,5 +1,5 @@
 <template>
-  <view>
+  <view style="overflow:hidden">
     <CustomNavBar :nav-style="navStyle" v-show="!isFullscreen" />
     <view class="container">
 
@@ -193,7 +193,8 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   padding-top: 170rpx;
-
+  position: relative;
+  z-index: 1;
 }
 
 .control-panel {
@@ -206,6 +207,7 @@ onMounted(() => {
   border-top-left-radius: 70rpx;
   border-top-right-radius: 70rpx;
   box-sizing: border-box;
+  z-index: 10;
 }
 
 .control-panel-header {

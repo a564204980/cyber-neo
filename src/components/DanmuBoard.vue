@@ -3,7 +3,8 @@
         <!-- Canvas 特效模式：铺满整个弹幕区域 -->
         <CanvasRender v-if="isCanvasEffect" :effectType="effectStore.currentTextEffect" :text="displayText"
             :fontSize="fontPx" :isPaused="props.isPaused" :direction="animStore.direction"
-            :config="effectStore.neonFlowConfig" :rotation="props.rotation" />
+            :config="effectStore.neonFlowConfig" :rotation="props.rotation" :animEffect="animStore.effect" :animParams="currentAnimParams
+                " />
         <!-- 普通 CSS 模式：保留原有的 mover/zoom 层 -->
         <view v-else class="content-wrapper flex items-center" :style="wrapperStyle">
             <view v-if="showDanmu" class="danmu-mover" :style="animStyle">
@@ -95,7 +96,6 @@ const danmuStyle = computed(() => {
 
         if (blur > 0) {
             if (shadow) shadow += ', '
-            // 为了提升发光效果，这里叠加了两个模糊半径
             shadow += `0 0 ${blur}rpx ${rgbaColor}, 0 0 ${blur * 1.5}rpx ${rgbaColor}`
         }
 
@@ -138,7 +138,7 @@ const isFullscreen = computed(() => props.rotation === 90)
 
 // 弹幕移动样式
 const animStyle = computed(() => {
-    const baseTop = isFullscreen.value ? "50%" : "45%"
+    const baseTop = isFullscreen.value ? "50%" : "46.22%"
 
     // 暂停状态
     if (props.isPaused) {
@@ -248,6 +248,15 @@ const effectAnimStyle = computed(() => {
 
     // 无效果
     return {}
+})
+
+const currentAnimParams = computed(() => {
+    const effect = animStore.effect
+    if (effect === 'zoom') return animStore.zoomParams
+    if (effect === 'shake') return animStore.shakeParams
+    if (effect === 'wave') return animStore.waveParams
+    if (effect === 'jump') return animStore.jumpParams
+    return null
 })
 
 

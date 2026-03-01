@@ -1,6 +1,13 @@
-export type TextEffectType = "none" | "neon-flow"; // 文字特效类型
+export type TextEffectType = "none" | "neon-flow" | "neon-flicker"; // 文字特效类型
 
 export type CanvasEffectType = "none" | "aurora"; // 背景特效类型
+
+export interface NewoFlickerConfig {
+  enabled: boolean;
+  colors: string[];
+  speed: number;
+  glowIntensity: number; // 光晕放大倍数
+}
 
 // 霓虹流光配置
 export interface NeonFlowConfig {

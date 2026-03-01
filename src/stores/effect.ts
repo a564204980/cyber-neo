@@ -36,6 +36,7 @@ export const useEffectStore = defineStore(
 
     const updateTextEffect = (type: TextEffectType) => {
       currentTextEffect.value = type;
+      console.log("currentTextEffect", currentTextEffect.value);
     };
 
     return {
@@ -52,5 +53,5 @@ export const useEffectStore = defineStore(
         setItem: (key: string, value: string) => uni.setStorageSync(key, value),
       },
     },
-  } as any,
+  } as any
 );

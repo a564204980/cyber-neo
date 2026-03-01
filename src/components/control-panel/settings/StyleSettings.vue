@@ -68,12 +68,12 @@
 import Slider from '@/components/common/Slider.vue';
 import ColorPicker from '@/components/control-panel/common/ColorPicker.vue';
 
-import { computed, ref } from 'vue';
-import { useStyleStore, usePopupStore } from '@/stores'
+import { computed, ref, nextTick } from 'vue';
+import { useStyleStore, usePopupStore, useEffectStore } from '@/stores'
 
 const store = useStyleStore()
 const popupStore = usePopupStore()
-
+const effectStore = useEffectStore()
 
 const list = [
     { label: "文字样式", value: "text" },
@@ -86,7 +86,16 @@ const activeIndex = ref<number>(0)
 const activeColorIndex = computed(() => {
     return store.colorConfig.presetIndex ?? -1
 })
-const isStrokeEnabled = computed(() => store.strokeConfig.enabled)
+
+const isStrokeEnabled = computed({
+    get() {
+        return store.strokeConfig.enabled
+    },
+    set(val: boolean) {
+        store.updateStrokeEnabled(val)
+    }
+})
+
 const strokeColorIndex = computed(() => {
     if (store.strokeConfig.colorConfig?.type === 'custom') {
         return colorPanelList.length - 1
@@ -120,7 +129,20 @@ const onSizeChange = (value: number) => {
  * @param e 
  */
 const handleStrokeChange = (e: any) => {
-    store.updateStrokeEnabled(e.detail.value)
+    if (effectStore.currentTextEffect !== "none") {
+        uni.showToast({
+            title: "当前特效已占用描边功能，请先关闭文字特效",
+            icon: "none"
+        })
+
+        isStrokeEnabled.value = true
+        nextTick(() => {
+            isStrokeEnabled.value = false
+        })
+        return
+    }
+
+    isStrokeEnabled.value = e.detail.value
 }
 
 /**

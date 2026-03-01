@@ -14,12 +14,13 @@
                 </view>
             </scroll-view>
 
-            <view class="font-bold stroke-panel-title flex items-center justify-between text-secondary">
-                <view>特效面板参数</view>
+            <view v-if="currentTextEffect !== 'none'"
+                class="font-bold stroke-panel-title flex items-center justify-between text-secondary">
+                <view>特效参数</view>
                 <switch :checked="currentEffectEnabled" @change="handleSwitchChange" color="#ff007f"
                     style="transform:scale(0.7)" />
             </view>
-            <view v-if="currentTextEffect === 'neon-flow'">
+            <view v-if="currentTextEffect === 'neon-flicker'">
                 <view class="param-row">
                     <view class="text-secondary">类型</view>
                     <view class="effect-blink-type flex items-center justify-between">
@@ -46,11 +47,13 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import { useEffectStore } from '@/stores'
+import { useEffectStore, useStyleStore } from '@/stores'
 import Slider from '@/components/common/Slider.vue';
+import { storeToRefs } from 'pinia';
 
 const effectStore = useEffectStore()
-const { currentTextEffect, neonFlowConfig } = effectStore
+const styleSttore = useStyleStore()
+const { currentTextEffect, neonFlowConfig } = storeToRefs(effectStore)
 
 const currentBlinkTypeIndex = ref<number>(0)
 
@@ -61,8 +64,8 @@ const blinkTypeList = [
 ] as const
 
 const textEffectList = [
-    { label: '爆灯闪烁', value: 'neon-flow', icon: 'electric_bolt' },
-    { label: '霓虹流光', value: 'neon-flow222', icon: 'water' },
+    { label: '爆灯闪烁', value: 'neon-flicker', icon: 'electric_bolt' },
+    { label: '霓虹流光', value: 'neon-flow', icon: 'water' },
 ] as const
 
 const currentEffectEnabled = computed(() => {
@@ -75,11 +78,14 @@ const handleEffectSelect = (value: any) => {
 }
 
 const handleSwitchChange = (e: any) => {
-    if (!e.detail.value) {
-        effectStore.updateTextEffect('none')
-        return
-    } else {
-        effectStore.updateTextEffect('neon-flow')
+    const configMap = {
+        'neon-flow': effectStore.neonFlowConfig,
+        // 'neon-flicker': effectStore.neonFlickerConfig,
+    }
+
+    const config = configMap[currentTextEffect.value as keyof typeof configMap];
+    if (config) {
+        config.enabled = e.detail.value;
     }
 }
 
