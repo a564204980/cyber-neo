@@ -32,11 +32,11 @@ export const useEffectStore = defineStore(
       breathe: true,
       breatheSpeed: 0.018, // 呼吸频率
       opacity: 1.0,
+      direction: "horizontal",
     });
 
     const updateTextEffect = (type: TextEffectType) => {
       currentTextEffect.value = type;
-      console.log("currentTextEffect", currentTextEffect.value);
     };
 
     return {

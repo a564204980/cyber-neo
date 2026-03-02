@@ -41,7 +41,7 @@
             <!-- 
             <view v-if="currentTextEffect === 'neon-flow'"></view> -->
 
-            <NeonFlowSetting v-if="currentTextEffect === 'neon-flow'"></NeonFlowSetting>
+            <NeonFlowSetting v-if="currentTextEffect === 'neon-flow' && currentEffectEnabled"></NeonFlowSetting>
 
         </view>
 

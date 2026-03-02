@@ -1,12 +1,17 @@
 export type TextEffectType = "none" | "neon-flow" | "neon-flicker"; // 文字特效类型
-
 export type CanvasEffectType = "none" | "aurora"; // 背景特效类型
+export type IntensityValue = number & { __brand: "Intensity" }; // 光晕强度
+export type FlowDirection =
+  | "horizontal"
+  | "vertical"
+  | "diagonal-down"
+  | "diagonal-up"; // 流光方向
 
 export interface NewoFlickerConfig {
   enabled: boolean;
   colors: string[];
   speed: number;
-  glowIntensity: number; // 光晕放大倍数
+  glowIntensity: IntensityValue; // 光晕放大倍数
 }
 
 // 霓虹流光配置
@@ -18,6 +23,7 @@ export interface NeonFlowConfig {
   opacity: number;
   breathe: boolean; // 是否开启呼吸脉动
   breatheSpeed: number; // 呼吸脉动速度
+  direction: FlowDirection; // 流光方向
 }
 
 // 极地漫步

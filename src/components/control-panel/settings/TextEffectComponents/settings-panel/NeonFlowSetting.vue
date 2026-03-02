@@ -2,15 +2,15 @@
     <view class="param-content">
         <view class="param-row">
             <view class="font-bold text-secondary">流动速度</view>
-            <Slider :minSize="1" :maxSize="10" v-model="effectStore.neonFlowConfig.speed" />
+            <Slider :minSize="1" :maxSize="10" v-model="config.speed" />
         </view>
         <view class="param-row">
             <view class="font-bold text-secondary">流光颜色</view>
-            <scroll-view scroll-x enable-flex>
+            <scroll-view scroll-x enable-flex class="grid-container">
                 <view class="preset-list">
                     <view v-for="(item, index) in colorPresets" :key="index"
                         :class="{ active: currentPresetIndex === index }" @click="handlePresetChange(index)"
-                        class="direction-item">
+                        class="preset-item">
                         <view class="icon material-icons">{{ item.icon }}</view>
                         <text class="label">{{ item.label }}</text>
                     </view>
@@ -19,9 +19,25 @@
         </view>
 
         <view class="param-row">
-            <view class="font-bold text-secondary">流动速度</view>
-            <Slider :minSize="1" :maxSize="10" v-model="effectStore.neonFlowConfig.speed" />
+            <view class="font-bold text-secondary">光晕强度</view>
+            <Slider :minSize="1" :maxSize="50" v-model="config.glowIntensity" :step="1" />
         </view>
+
+        <view class="param-row">
+            <view class="font-bold text-secondary">流光方向</view>
+            <scroll-view scroll-x enable-flex class="grid-container">
+                <view class="preset-list">
+                    <view v-for="(item, index) in directionOptions" :key="index"
+                        :class="{ active: config.direction === item.value }" @click="handleDirectionChange(item.value)"
+                        class="preset-item">
+                        <view class="icon material-icons">{{ item.icon }}</view>
+                        <text class="label">{{ item.label }}</text>
+                    </view>
+                </view>
+            </scroll-view>
+        </view>
+
+
     </view>
 </template>
 
@@ -29,22 +45,35 @@
 import { useEffectStore } from '@/stores'
 import { ref } from 'vue'
 import Slider from '@/components/common/Slider.vue'
+import { FlowDirection } from '@/types/effect';
 
 const effectStore = useEffectStore()
+const config = effectStore.neonFlowConfig;
 
 const currentPresetIndex = ref(0)
 
 
 const colorPresets = [
-    { label: '赛博朋克', colors: ['#0ff', '#f0f'], icon: 'blur_on' },
-    { label: '烈焰流金', colors: ['#ff003c', '#ff8a00'], icon: 'local_fire_department' },
-    { label: '极光薄荷', colors: ['#00ff87', '#60efff'], icon: 'waves' },
-    { label: '皎洁月光', colors: ['#ffffff', '#a3a3a3'], icon: 'brightness_3' },
+    { label: '赛博朋克', colors: ['#00ffff', '#b026ff', '#ff00ff', '#fcee0a', '#ff00ff', '#b026ff'], icon: 'blur_on' },
+    { label: '烈焰流金', colors: ['#ff0000', '#ff4000', '#ff8000', '#ffbf00', '#ffff00', '#ffbf00', '#ff8000', '#ff4000'], icon: 'local_fire_department' },
+    { label: '极光薄荷', colors: ['#00ffa9', '#00e5ff', '#0084ff', '#7000ff', '#0084ff', '#00e5ff'], icon: 'waves' },
+    { label: '皎洁月光', colors: ['#4a536b', '#8690a6', '#c4cdd8', '#ffffff', '#c4cdd8', '#8690a6'], icon: 'brightness_3' },
+]
+
+const directionOptions: { label: string, value: FlowDirection, icon: string }[] = [
+    { label: '横向', value: 'horizontal', icon: 'swap_horiz' },
+    { label: '纵向', value: 'vertical', icon: 'swap_vert' },
+    { label: '下斜', value: 'diagonal-down', icon: 'call_received' },
+    { label: '上斜', value: 'diagonal-up', icon: 'call_made' },
 ]
 
 const handlePresetChange = (index: number) => {
     currentPresetIndex.value = index
     effectStore.neonFlowConfig.colors = colorPresets[index].colors
+}
+
+const handleDirectionChange = (val: FlowDirection) => {
+    config.direction = val;
 }
 </script>
 
@@ -61,7 +90,7 @@ const handlePresetChange = (index: number) => {
 }
 
 .preset-list {
-    display: flex;
+    display: inline-flex;
     white-space: nowrap;
     width: 100%;
     gap: 20rpx;
@@ -70,7 +99,7 @@ const handlePresetChange = (index: number) => {
 }
 
 
-.direction-item {
+.preset-item {
     padding: 20rpx 40rpx;
     background: #2b2b2b;
     border-radius: 20rpx;

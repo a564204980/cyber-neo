@@ -1,3 +1,4 @@
+import { FlowDirection } from "@/types/effect";
 import { drawNeonFlow } from "./neonFlow";
 // import { drawNeonFlicker } from "./neonFlicker";
 
@@ -19,6 +20,8 @@ export interface DrawContext {
     glowIntensity: number; // 光晕强度
     breathe: boolean; // 是否开启明暗脉动/呼吸效果
     breatheSpeed: number; // 脉动的频率速率
+    colors?: string[]; // 自定义流光颜色组
+    direction: FlowDirection; // 流光方向
   };
 }
 
