@@ -1,10 +1,12 @@
 <template>
     <view class="danmu-board">
+        <CanvasRender v-if="hasCanvasBg" class="cosmic-bg" :effectType="effectStore.currentCanvasEffect" text=""
+            :fontSize="0" :config="effectStore.floatingEmbersConfig" />
         <!-- Canvas 特效模式：铺满整个弹幕区域 -->
         <CanvasRender v-if="isCanvasEffect" :effectType="effectStore.currentTextEffect" :text="displayText"
-            :fontSize="fontPx" :isPaused="props.isPaused" :direction="animStore.direction"
-            :config="effectStore.neonFlowConfig" :rotation="props.rotation" :animEffect="animStore.effect" :animParams="currentAnimParams
-                " />
+            :fontSize="fontPx" :isPaused="props.isPaused" :direction="animStore.direction" :config="canvasEffectConfig"
+            :rotation="props.rotation" :animEffect="animStore.effect" :animParams="currentAnimParams
+                " :color="store.currentColor" />
         <!-- 普通 CSS 模式：保留原有的 mover/zoom 层 -->
         <view v-else class="content-wrapper flex items-center" :style="wrapperStyle">
             <view v-if="showDanmu" class="danmu-mover" :style="animStyle">
@@ -30,11 +32,22 @@ const effectStore = useEffectStore()
 
 const showDanmu = ref(true);
 
-const CANVAS_EFFECTS = new Set(['neon-flow'])
-const isCanvasEffect = computed(() =>
-    CANVAS_EFFECTS.has(effectStore.currentTextEffect)
-    && effectStore.neonFlowConfig.enabled
-)
+const isCanvasEffect = computed(() => {
+    if (effectStore.currentTextEffect === 'neon-flow') return effectStore.neonFlowConfig.enabled
+    if (effectStore.currentTextEffect === 'neon-flicker') return effectStore.neonFlickerConfig.enabled
+    if (effectStore.currentTextEffect === 'rgb-glitch') return effectStore.rgbGlitchConfig.enabled
+    if (effectStore.currentTextEffect === 'hollow-pulse') return effectStore.hollowPulseConfig.enabled
+    return false
+})
+
+const canvasEffectConfig = computed(() => {
+    if (effectStore.currentTextEffect === 'neon-flow') return effectStore.neonFlowConfig
+    if (effectStore.currentTextEffect === 'neon-flicker') return effectStore.neonFlickerConfig
+    if (effectStore.currentTextEffect === 'rgb-glitch') return effectStore.rgbGlitchConfig
+    if (effectStore.currentTextEffect === 'hollow-pulse') return effectStore.hollowPulseConfig
+
+    return {}
+})
 
 // 因为 store.fontSize 是 rpx 单位，在 canvas 里要用 px 画，必须通过 uni.upx2px 换算
 const fontPx = computed(() => uni.upx2px(store.fontSize))
@@ -257,6 +270,10 @@ const currentAnimParams = computed(() => {
     if (effect === 'wave') return animStore.waveParams
     if (effect === 'jump') return animStore.jumpParams
     return null
+})
+
+const hasCanvasBg = computed(() => {
+    return effectStore.currentCanvasEffect === 'floating-embers'
 })
 
 

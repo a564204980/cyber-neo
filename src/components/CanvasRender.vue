@@ -10,12 +10,13 @@ const props = withDefaults(defineProps<{
     effectType: string
     text: string
     fontSize: number
-    isPaused: boolean
-    direction: string      // 'left' | 'right' | 'up' | 'down'
-    rotation: number
     config: Record<string, any>
-    animEffect: string // 动画类型
-    animParams: Record<string, any> | null // 动画参数
+    isPaused?: boolean
+    direction?: string      // 'left' | 'right' | 'up' | 'down'
+    rotation?: number
+    animEffect?: string // 动画类型
+    animParams?: Record<string, any> | null // 动画参数
+    color?: string
 }>(), {
     isPaused: false,
     direction: 'left',
@@ -102,6 +103,7 @@ const draw = () => {
     drawer({
         ctx, W: canvasW, H: canvasH, fontSize: props.fontSize,
         text: props.text, offset, textX, textY: textY + anim.offsetY,
+        color: props.color,
         config: props.config as any
     })
 

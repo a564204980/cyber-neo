@@ -3,7 +3,7 @@
         <view class="section">
             <view class="flex justify-between">
                 <view class="section-title text-white">文字特效</view>
-                <view class="text-secondary more-text">往左滑动查看更多</view>
+                <!-- <view class="text-secondary more-text">往左滑动查看更多</view> -->
             </view>
             <scroll-view scroll-x enable-flex class="grid-container">
                 <view v-for="item in textEffectList" :key="item.value"
@@ -20,29 +20,17 @@
                 <switch :checked="currentEffectEnabled" @change="handleSwitchChange" color="#ff007f"
                     style="transform:scale(0.7)" />
             </view>
-            <!-- <view v-if="currentTextEffect === 'neon-flicker'">
-                <view class="param-row">
-                    <view class="text-secondary">类型</view>
-                    <view class="effect-blink-type flex items-center justify-between">
-                        <view v-for="(item, index) in blinkTypeList" :key="index" class="effect-blink-item"
-                            :class="{ active: currentBlinkTypeIndex === index }" @click="handleBlinkTypeChange(index)">
-                            <text class="material-icons">{{ item.icon }}</text>
-                            <text>{{ item.label }}</text>
-                        </view>
-                    </view>
-                </view>
-                <view class="param-panel" :class="{ 'is-show': effectStore.neonFlowConfig.enabled }">
-                    <view class="param-row">
-                        <view class="text-secondary">闪烁频率</view>
-                        <Slider :minSize="1" :maxSize="10" v-model="effectStore.neonFlowConfig.speed" />
-                    </view>
-                </view>
-            </view> -->
-            <!-- 
-            <view v-if="currentTextEffect === 'neon-flow'"></view> -->
+
+
+            <NeonFlickerSetting v-if="currentTextEffect === 'neon-flicker' && currentEffectEnabled">
+            </NeonFlickerSetting>
 
             <NeonFlowSetting v-if="currentTextEffect === 'neon-flow' && currentEffectEnabled"></NeonFlowSetting>
 
+            <RgbGlitchSetting v-if="currentTextEffect === 'rgb-glitch' && currentEffectEnabled"></RgbGlitchSetting>
+
+            <HollowPulseSetting v-if="currentTextEffect === 'hollow-pulse' && currentEffectEnabled">
+            </HollowPulseSetting>
         </view>
 
     </view>
@@ -51,30 +39,30 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 import { storeToRefs } from 'pinia';
-import { useEffectStore, useStyleStore } from '@/stores'
-import Slider from '@/components/common/Slider.vue';
+import { useEffectStore } from '@/stores'
 import NeonFlowSetting from './settings-panel/NeonFlowSetting.vue';
+import NeonFlickerSetting from './settings-panel/NeonFlickerSetting.vue';
+import RgbGlitchSetting from './settings-panel/RgbGlitchSetting.vue';
+import HollowPulseSetting from './settings-panel/HollowPulseSetting.vue';
 
 const effectStore = useEffectStore()
-const styleSttore = useStyleStore()
 const { currentTextEffect, neonFlowConfig } = storeToRefs(effectStore)
 
 const currentBlinkTypeIndex = ref<number>(0)
 
-const blinkTypeList = [
-    { label: '迷幻酒吧', value: 'blink', icon: "nightlife" },
-    { label: '狂欢聚会', value: 'blink2', icon: "celebration" },
-    { label: '硬核夜店', value: 'blink3', icon: "flash_on" },
-] as const
-
 const textEffectList = [
     { label: '爆灯闪烁', value: 'neon-flicker', icon: 'electric_bolt' },
     { label: '霓虹流光', value: 'neon-flow', icon: 'water' },
+    { label: 'RGB故障', value: 'rgb-glitch', icon: 'bug_report' },
+    { label: '线框律动', value: 'hollow-pulse', icon: 'graphic_eq' },
 ] as const
 
 
 const currentEffectEnabled = computed(() => {
     if (effectStore.currentTextEffect === 'neon-flow') return effectStore.neonFlowConfig.enabled
+    if (effectStore.currentTextEffect === 'neon-flicker') return effectStore.neonFlickerConfig.enabled
+    if (effectStore.currentTextEffect === 'rgb-glitch') return effectStore.rgbGlitchConfig.enabled
+    if (effectStore.currentTextEffect === 'hollow-pulse') return effectStore.hollowPulseConfig.enabled
     return false
 })
 
@@ -85,7 +73,9 @@ const handleEffectSelect = (value: any) => {
 const handleSwitchChange = (e: any) => {
     const configMap = {
         'neon-flow': effectStore.neonFlowConfig,
-        // 'neon-flicker': effectStore.neonFlickerConfig,
+        'neon-flicker': effectStore.neonFlickerConfig,
+        'rgb-glitch': effectStore.rgbGlitchConfig,
+        'hollow-pulse': effectStore.hollowPulseConfig,
     }
 
     const config = configMap[currentTextEffect.value as keyof typeof configMap];
@@ -103,10 +93,6 @@ const blinkColorPresets: string[][] = [
     ['#ff003c', '#ff003c'],
 ]
 
-const handleBlinkTypeChange = (index: number) => {
-    currentBlinkTypeIndex.value = index
-    effectStore.neonFlowConfig.colors = blinkColorPresets[index]
-}
 
 </script>
 

@@ -4,8 +4,16 @@
             <view class="font-bold text-secondary">流动速度</view>
             <Slider :minSize="1" :maxSize="10" v-model="config.speed" />
         </view>
+
         <view class="param-row">
-            <view class="font-bold text-secondary">流光颜色</view>
+            <view class="font-bold text-secondary">光晕强度</view>
+            <Slider :minSize="1" :maxSize="50" v-model="config.glowIntensity" :step="1" />
+        </view>
+        <view class="param-row">
+            <view class="flex justify-between">
+                <view class="font-bold text-secondary">流光颜色</view>
+                <view class="text-secondary more-text">往左滑动查看更多</view>
+            </view>
             <scroll-view scroll-x enable-flex class="grid-container">
                 <view class="preset-list">
                     <view v-for="(item, index) in colorPresets" :key="index"
@@ -17,14 +25,11 @@
                 </view>
             </scroll-view>
         </view>
-
         <view class="param-row">
-            <view class="font-bold text-secondary">光晕强度</view>
-            <Slider :minSize="1" :maxSize="50" v-model="config.glowIntensity" :step="1" />
-        </view>
-
-        <view class="param-row">
-            <view class="font-bold text-secondary">流光方向</view>
+            <view class="flex justify-between">
+                <view class="font-bold text-secondary">流光方向</view>
+                <view class="text-secondary more-text">往左滑动查看更多</view>
+            </view>
             <scroll-view scroll-x enable-flex class="grid-container">
                 <view class="preset-list">
                     <view v-for="(item, index) in directionOptions" :key="index"
@@ -100,7 +105,7 @@ const handleDirectionChange = (val: FlowDirection) => {
 
 
 .preset-item {
-    padding: 20rpx 40rpx;
+    padding: 20rpx 30rpx;
     background: #2b2b2b;
     border-radius: 20rpx;
     color: rgba(255, 255, 255, 0.5);
@@ -118,5 +123,9 @@ const handleDirectionChange = (val: FlowDirection) => {
         border-color: #ff007f;
         font-weight: bold;
     }
+}
+
+.more-text {
+    padding-right: 20rpx;
 }
 </style>

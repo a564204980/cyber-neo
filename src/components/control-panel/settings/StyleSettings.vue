@@ -117,6 +117,13 @@ const onItemClick = (index: number) => {
 }
 
 const onColorItemClick = (index: number) => {
+    // if (effectStore.currentTextEffect !== "none" && effectStore.currentTextEffect !== "rgb-glitch") {
+    //     uni.showToast({
+    //         title: `${effectStore.currentTextEffect}特效已占用颜色功能，请先关闭文字特效`,
+    //         icon: "none"
+    //     })
+    //     return
+    // }
     store.updateColor(index)
 }
 

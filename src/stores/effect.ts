@@ -5,6 +5,10 @@ import type {
   CanvasEffectType,
   NeonFlowConfig,
   AuroraConfig,
+  NeonFlickerConfig,
+  RgbGlitchConfig,
+  HollowPulseConfig,
+  FloatingEmbersConfig,
 } from "@/types/effect";
 
 export const useEffectStore = defineStore(
@@ -12,8 +16,9 @@ export const useEffectStore = defineStore(
   () => {
     // 当前激活特效
     const currentTextEffect = ref<TextEffectType>("neon-flow");
-    const currentCanvasEffect = ref<CanvasEffectType>("none");
+    const currentCanvasEffect = ref<CanvasEffectType>("floating-embers");
 
+    // 霓虹流光配置
     const neonFlowConfig = ref<NeonFlowConfig>({
       enabled: true,
       colors: [
@@ -35,8 +40,47 @@ export const useEffectStore = defineStore(
       direction: "horizontal",
     });
 
+    // 爆灯闪烁配置
+    const neonFlickerConfig = ref<NeonFlickerConfig>({
+      enabled: true,
+      colors: ["#ff003c", "#0066ff"],
+      speed: 6,
+      glowIntensity: 8,
+    });
+
+    // 故障配置
+    const rgbGlitchConfig = ref<RgbGlitchConfig>({
+      enabled: true,
+      intensity: 8,
+      speed: 7,
+      style: "vhs",
+    });
+
+    // 线框律动配置
+    const hollowPulseConfig = ref<HollowPulseConfig>({
+      enabled: true,
+      baseWidth: 2,
+      pulseDistortion: 6,
+      speed: 4,
+      lineStyle: "solid",
+    });
+
+    // 浮动余烬配置
+    const floatingEmbersConfig = ref<FloatingEmbersConfig>({
+      enabled: true,
+      particleCount: 50,
+      speed: 3,
+      size: 4,
+      theme: "warm",
+    });
+
     const updateTextEffect = (type: TextEffectType) => {
       currentTextEffect.value = type;
+    };
+
+    // 更新背景特效
+    const updateCanvasEffect = (type: CanvasEffectType = "floating-embers") => {
+      currentCanvasEffect.value = type;
     };
 
     return {
@@ -44,6 +88,11 @@ export const useEffectStore = defineStore(
       currentCanvasEffect,
       neonFlowConfig,
       updateTextEffect,
+      neonFlickerConfig,
+      rgbGlitchConfig,
+      hollowPulseConfig,
+      floatingEmbersConfig,
+      updateCanvasEffect,
     };
   },
   {
