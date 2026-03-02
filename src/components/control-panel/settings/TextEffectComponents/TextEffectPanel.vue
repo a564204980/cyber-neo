@@ -1,5 +1,5 @@
 <template>
-    <view style="padding: 40rpx;">
+    <view style="padding: 40rpx">
         <view class="section">
             <view class="flex justify-between">
                 <view class="section-title text-white">文字特效</view>
@@ -20,7 +20,7 @@
                 <switch :checked="currentEffectEnabled" @change="handleSwitchChange" color="#ff007f"
                     style="transform:scale(0.7)" />
             </view>
-            <view v-if="currentTextEffect === 'neon-flicker'">
+            <!-- <view v-if="currentTextEffect === 'neon-flicker'">
                 <view class="param-row">
                     <view class="text-secondary">类型</view>
                     <view class="effect-blink-type flex items-center justify-between">
@@ -37,8 +37,11 @@
                         <Slider :minSize="1" :maxSize="10" v-model="effectStore.neonFlowConfig.speed" />
                     </view>
                 </view>
+            </view> -->
+            <!-- 
+            <view v-if="currentTextEffect === 'neon-flow'"></view> -->
 
-            </view>
+            <NeonFlowSetting v-if="currentTextEffect === 'neon-flow'"></NeonFlowSetting>
 
         </view>
 
@@ -47,9 +50,10 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
+import { storeToRefs } from 'pinia';
 import { useEffectStore, useStyleStore } from '@/stores'
 import Slider from '@/components/common/Slider.vue';
-import { storeToRefs } from 'pinia';
+import NeonFlowSetting from './settings-panel/NeonFlowSetting.vue';
 
 const effectStore = useEffectStore()
 const styleSttore = useStyleStore()
@@ -67,6 +71,7 @@ const textEffectList = [
     { label: '爆灯闪烁', value: 'neon-flicker', icon: 'electric_bolt' },
     { label: '霓虹流光', value: 'neon-flow', icon: 'water' },
 ] as const
+
 
 const currentEffectEnabled = computed(() => {
     if (effectStore.currentTextEffect === 'neon-flow') return effectStore.neonFlowConfig.enabled
@@ -108,6 +113,7 @@ const handleBlinkTypeChange = (index: number) => {
 <style lang="scss" scoped>
 .section {
     margin-bottom: 20rpx;
+    height: 100%;
 }
 
 .section-title {
