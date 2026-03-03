@@ -65,7 +65,7 @@ const handleStyleChange = (val: LineDashStyle) => {
 }
 
 .preset-item {
-    padding: 20rpx 40rpx;
+    padding: 20rpx 30rpx;
     background: #2b2b2b;
     border-radius: 20rpx;
     color: rgba(255, 255, 255, 0.5);

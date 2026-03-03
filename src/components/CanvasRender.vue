@@ -37,12 +37,19 @@ watch(() => props.effectType, () => {
     offset = 0
 })
 
+let rotationReinitTimer: ReturnType<typeof setTimeout> | null = null
+
+
 watch(() => props.rotation, () => {
-    if (timer) clearInterval(timer)
-    timer = null
-    ctx = null
-    offset = 0
-    initCanvas()
+    if (rotationReinitTimer) return  // 已在等待中，跳过
+    rotationReinitTimer = setTimeout(() => {
+        rotationReinitTimer = null
+        if (timer) clearInterval(timer)
+        timer = null
+        ctx = null
+        offset = 0
+        initCanvas()
+    }, 80)  // 80ms 内只触发一次
 })
 
 // 初始化canvas
@@ -77,9 +84,11 @@ const initCanvas = () => {
 }
 
 /**
- * 绘制文字
+ * 绘制特效
  */
 const draw = () => {
+    if (!ctx) return
+
     const drawer = effectDrawers[props.effectType]
     if (!drawer) return
 
@@ -87,6 +96,15 @@ const draw = () => {
     const anim = calcAnimTransform()
 
     ctx.clearRect(0, 0, canvasW, canvasH)
+    ctx.save()
+
+    const globalRotateAngle = (props.rotation || 0) * Math.PI / 180
+
+    if (globalRotateAngle > 0) {
+        ctx.translate(canvasW / 2, canvasH / 2)
+        ctx.rotate(globalRotateAngle)
+        ctx.translate(-canvasW / 2, -canvasH / 2)
+    }
 
     ctx.save()
 
@@ -104,11 +122,17 @@ const draw = () => {
         ctx, W: canvasW, H: canvasH, fontSize: props.fontSize,
         text: props.text, offset, textX, textY: textY + anim.offsetY,
         color: props.color,
-        config: props.config as any
+        config: props.config as any,
+        rotation: props.rotation || 0
     })
 
+    //有几个save就要有几个restore
     ctx.restore()
-    offset++
+    ctx.restore()
+
+    if (!props.isPaused) {
+        offset++
+    }
 }
 
 const calcTextPosition = () => {
@@ -118,26 +142,33 @@ const calcTextPosition = () => {
     }
 
     const textWidth = props.text.length * props.fontSize // 文字的总宽度
-    const speed = 2
+    // const speed = 2
+
+    if (props.isPaused || !props.direction || props.direction === 'none') {
+        return { textX: canvasW / 2, textY: canvasH / 2 }
+    }
+
+    const baseSpeed = props.animParams?.speed || 5
+    const step = baseSpeed * 0.5;
 
     if (props.direction === "left") {
         const totalDistance = canvasW + textWidth
-        const x = canvasW + textWidth / 2 - (offset * speed) % totalDistance
+        const x = canvasW + textWidth / 2 - (offset * step) % totalDistance
         return { textX: x, textY: canvasH / 2 }
     }
     if (props.direction === 'right') {
         const totalDistance = canvasW + textWidth
-        const x = -textWidth / 2 + (offset * speed) % totalDistance
+        const x = -textWidth / 2 + (offset * step) % totalDistance
         return { textX: x, textY: canvasH / 2 }
     }
     if (props.direction === 'up') {
         const totalDistance = canvasH + props.fontSize
-        const y = canvasH + props.fontSize / 2 - (offset * speed) % totalDistance
+        const y = canvasH + props.fontSize / 2 - (offset * step) % totalDistance
         return { textX: canvasW / 2, textY: y }
     }
     if (props.direction === 'down') {
         const totalDistance = canvasH + props.fontSize
-        const y = -props.fontSize / 2 + (offset * speed) % totalDistance
+        const y = -props.fontSize / 2 + (offset * step) % totalDistance
         return { textX: canvasW / 2, textY: y }
     }
     return { textX: canvasW / 2, textY: canvasH / 2 }

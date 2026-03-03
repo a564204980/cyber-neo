@@ -1,13 +1,14 @@
 <template>
     <view class="danmu-board">
+        <!-- 背景特效层 -->
         <CanvasRender v-if="hasCanvasBg" class="cosmic-bg" :effectType="effectStore.currentCanvasEffect" text=""
-            :fontSize="0" :config="effectStore.floatingEmbersConfig" />
-        <!-- Canvas 特效模式：铺满整个弹幕区域 -->
+            :fontSize="0" :config="effectStore.floatingEmbersConfig" :rotation="props.rotation" />
+        <!-- 文字特效层 -->
         <CanvasRender v-if="isCanvasEffect" :effectType="effectStore.currentTextEffect" :text="displayText"
             :fontSize="fontPx" :isPaused="props.isPaused" :direction="animStore.direction" :config="canvasEffectConfig"
             :rotation="props.rotation" :animEffect="animStore.effect" :animParams="currentAnimParams
                 " :color="store.currentColor" />
-        <!-- 普通 CSS 模式：保留原有的 mover/zoom 层 -->
+        <!-- 普通css动画 -->
         <view v-else class="content-wrapper flex items-center" :style="wrapperStyle">
             <view v-if="showDanmu" class="danmu-mover" :style="animStyle">
                 <view class="danmu-zoom" :style="effectAnimStyle">
@@ -263,6 +264,7 @@ const effectAnimStyle = computed(() => {
     return {}
 })
 
+// 动画参数
 const currentAnimParams = computed(() => {
     const effect = animStore.effect
     if (effect === 'zoom') return animStore.zoomParams
@@ -272,6 +274,7 @@ const currentAnimParams = computed(() => {
     return null
 })
 
+// 是否有背景特效
 const hasCanvasBg = computed(() => {
     return effectStore.currentCanvasEffect === 'floating-embers'
 })

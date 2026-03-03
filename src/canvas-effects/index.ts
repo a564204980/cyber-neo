@@ -24,6 +24,7 @@ export interface DrawContext {
   textX: number;
   textY: number;
   color?: string;
+  rotation?: number; // 下拉旋转进度
   config: {
     speed: number; // 动画速度
     glowIntensity: number; // 光晕强度

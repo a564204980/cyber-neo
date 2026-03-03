@@ -24,18 +24,18 @@
             <view class="param-content"
                 v-if="effectStore.currentCanvasEffect === 'floating-embers' && currentEffectEnabled">
                 <view class="param-row">
-                    <view class="font-bold text-secondary mb-2">星火浓度 (数量)</view>
+                    <view class="font-bold text-secondary mb-2">数量</view>
                     <!-- 手机端建议10-150，性能极佳 -->
                     <Slider :minSize="10" :maxSize="150" v-model="config.particleCount" />
                 </view>
 
                 <view class="param-row">
-                    <view class="font-bold text-secondary mb-2">上升气流 (速度)</view>
+                    <view class="font-bold text-secondary mb-2">速度</view>
                     <Slider :minSize="1" :maxSize="10" v-model="config.speed" />
                 </view>
 
                 <view class="param-row">
-                    <view class="font-bold text-secondary mb-2">流星雨体系</view>
+                    <view class="font-bold text-secondary mb-2">类型</view>
                     <scroll-view scroll-x enable-flex class="grid-container">
                         <view class="preset-list">
                             <view v-for="opt in themeOptions" :key="opt.value"
@@ -173,7 +173,7 @@ const handleThemeChange = (val: EmberTheme) => {
 }
 
 .preset-item {
-    padding: 20rpx 40rpx;
+    padding: 0 30rpx;
     background: #2b2b2b;
     border-radius: 20rpx;
     color: rgba(255, 255, 255, 0.5);

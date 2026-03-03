@@ -78,15 +78,17 @@ export const drawFloatingEmbers = ({
     p.y -= p.vy;
     p.x += Math.sin(Date.now() * 0.001 + i) * p.vx; // 使用 Sin 函数制造完美随风摇曳
     p.alpha -= p.decay;
+
+    // 如果粒子飘出屏幕顶部或者透明度耗尽，就把它放到屏幕底部
     if (p.y < 0 || p.alpha <= 0) {
       p.y = H + p.r;
-      p.x = Math.random() * W;
-      p.alpha = Math.random() * 0.8 + 0.2;
-      p.vy = (Math.random() * 0.5 + 0.5) * baseSpeed;
+      p.x = Math.random() * W; // 随机x轴位置
+      p.alpha = Math.random() * 0.8 + 0.2; // 随机透明度
+      p.vy = (Math.random() * 0.5 + 0.5) * baseSpeed; // 随机速度
     }
-    // 画一颗发了光的高斯火星
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+
+    ctx.beginPath(); // 开始绘制路径
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); // 0到2π 角度，也就是一个完整的圆
 
     ctx.fillStyle = `rgba(${tc.r}, ${tc.g}, ${tc.b}, ${p.alpha})`;
     ctx.shadowColor = `rgba(${tc.r}, ${tc.g}, ${tc.b}, ${p.alpha})`;
