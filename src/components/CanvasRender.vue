@@ -80,7 +80,7 @@ const initCanvas = () => {
             }
             timer = setInterval(draw, 33);
         })
-    }, 100)
+    }, 400)
 }
 
 /**
@@ -92,19 +92,44 @@ const draw = () => {
     const drawer = effectDrawers[props.effectType]
     if (!drawer) return
 
-    const { textX, textY } = calcTextPosition()
-    const anim = calcAnimTransform()
+    const isBgEffect = props.fontSize === 0
+    const globalRotateAngle = (props.rotation || 0) * Math.PI / 180
 
     ctx.clearRect(0, 0, canvasW, canvasH)
     ctx.save()
-
-    const globalRotateAngle = (props.rotation || 0) * Math.PI / 180
 
     if (globalRotateAngle > 0) {
         ctx.translate(canvasW / 2, canvasH / 2)
         ctx.rotate(globalRotateAngle)
         ctx.translate(-canvasW / 2, -canvasH / 2)
     }
+
+    if (isBgEffect) {
+        // 背景特效：旋转后坐标系变了，需额外平移并交换宽高才能铺满整个画布
+        // 数学推导：旋转90°后可见区域在绘制坐标系为 x:-(H-W)/2~(H+W)/2, y:(H-W)/2~(H+W)/2
+        // ctx.translate(-(H-W)/2, (H-W)/2) 将原点对齐到可见区左上角，再以 H×W 绘制即可铺满
+        let drawW = canvasW
+        let drawH = canvasH
+        if (globalRotateAngle > 0) {
+            const diff = (canvasH - canvasW) / 2
+            ctx.translate(-diff, diff)
+            drawW = canvasH
+            drawH = canvasW
+        }
+        drawer({
+            ctx, W: drawW, H: drawH, fontSize: 0,
+            text: '', offset, textX: 0, textY: 0,
+            config: props.config as any,
+            rotation: props.rotation || 0
+        })
+        ctx.restore()
+        if (!props.isPaused) offset++
+        return
+    }
+
+    // 文字特效：保持原有旋转 + 动画变换逻辑
+    const { textX, textY } = calcTextPosition()
+    const anim = calcAnimTransform()
 
     ctx.save()
 
@@ -126,7 +151,6 @@ const draw = () => {
         rotation: props.rotation || 0
     })
 
-    //有几个save就要有几个restore
     ctx.restore()
     ctx.restore()
 

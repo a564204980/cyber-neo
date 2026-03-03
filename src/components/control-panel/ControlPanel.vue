@@ -6,6 +6,7 @@
                     <view class="input-area-head-left text-primary">
                         <text class="material-icons">format_size</text>
                         <text>文字内容</text>
+                        <button open-type="feedback" class="feedback-btn">意见反馈</button>
                     </view>
                     <view class="input-area-head-right text-secondary">{{ `${inputValue.length}/${max}` }}</view>
                 </view>
@@ -72,6 +73,7 @@ const onConfirm = () => {
 
 
 const onTagClick = (item: { label: string }) => {
+    console.log("inputValue", item)
     inputValue.value = item.label
     emits("send", inputValue.value)
 }
@@ -114,7 +116,7 @@ const onTagClick = (item: { label: string }) => {
 
 .input-area-head-left {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     font-size: 40rpx;
     font-weight: bold;
     gap: 10rpx;
@@ -143,5 +145,20 @@ const onTagClick = (item: { label: string }) => {
 
 .tag-container {
     padding: 0 10rpx;
+}
+
+.feedback-btn {
+    font-size: 22rpx;
+    color: rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 30rpx;
+    padding: 0 20rpx;
+    height: 48rpx;
+    line-height: 48rpx;
+    border: none;
+
+    &::after {
+        border: none;
+    }
 }
 </style>

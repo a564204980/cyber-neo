@@ -3,28 +3,38 @@
         <scroll-view scroll-y class="style-settings-scroll">
             <view class="style-settings-wrapper">
                 <view class="flex items-center justify-between style-settings-container">
-                    <view class="active-bg" :style="{ transform: `translateX(${activeIndex * 100}%)` }"></view>
+                    <view class="active-bg" :style="{ transform: `translateX(${store.styleTabIndex * 100}%)` }">
+                    </view>
                     <view v-for="(item, index) in list" :key="item.value" @click="onItemClick(index)"
-                        class="style-item font-bold " :class="index === activeIndex ? 'active' : 'text-secondary'">{{
+                        class="style-item font-bold "
+                        :class="index === store.styleTabIndex ? 'active' : 'text-secondary'">{{
                             item.label
                         }}
                     </view>
                 </view>
             </view>
 
-            <view class="color-panel-container">
+            <!-- 文字颜色 -->
+            <view v-if="store.styleTabIndex === 0" class="color-panel-container">
                 <view class="font-bold color-panel-title">颜色面板</view>
                 <ColorPicker :colorPanelList="colorPanelList" :activeColorIndex="activeColorIndex"
                     @colorClick="onColorItemClick" @customColorClick="onCustomColorClick('text')" />
             </view>
 
-            <view class="size-panel-container">
+            <!-- 画布背景色 -->
+            <view v-if="store.styleTabIndex === 1" class="color-panel-container">
+                <view class="font-bold color-panel-title">画布背景色</view>
+                <ColorPicker :colorPanelList="bgColorList" :activeColorIndex="bgColorIndex" @colorClick="onBgColorClick"
+                    @customColorClick="onBgCustomColorClick" />
+            </view>
+
+            <view v-if="store.styleTabIndex === 0" class="size-panel-container">
                 <view class="font-bold size-panel-title">文字大小</view>
                 <Slider @change="onSizeChange" @update:modelValue="onSizeChange" :minSize="store.MIN_FONT_SIZE"
                     :maxSize="store.MAX_FONT_SIZE" />
             </view>
 
-            <view class="stroke-panel-container">
+            <view v-if="store.styleTabIndex === 0" class="stroke-panel-container">
                 <view class="font-bold stroke-panel-title flex items-center justify-between">
                     <view>描边</view>
                     <switch :checked="isStrokeEnabled" @change="handleStrokeChange" color="#ff007f"
@@ -70,6 +80,7 @@ import ColorPicker from '@/components/control-panel/common/ColorPicker.vue';
 
 import { computed, ref, nextTick } from 'vue';
 import { useStyleStore, usePopupStore, useEffectStore } from '@/stores'
+import { DEFAULT_COLOR_PRESETS } from '@/config/color-presets';
 
 const store = useStyleStore()
 const popupStore = usePopupStore()
@@ -81,11 +92,30 @@ const list = [
 ]
 const colorPanelList = store.colorList
 
-const activeIndex = ref<number>(0)
+// 画布背景色选项
+const bgColorList = [...DEFAULT_COLOR_PRESETS]
+
+const bgColorIndex = computed(() =>
+    bgColorList.findIndex(c => c.color === store.bgColor)
+)
+
+const onBgColorClick = (index: number) => {
+    if (bgColorList[index]) store.updateBgColor(bgColorList[index].color)
+}
+
+const onBgCustomColorClick = () => {
+    popupStore.open('ColorPicker', { target: 'bg' })
+}
+
+
+const onItemClick = (index: number) => {
+    store.styleTabIndex = index
+}
 
 const activeColorIndex = computed(() => {
     return store.colorConfig.presetIndex ?? -1
 })
+
 
 const isStrokeEnabled = computed({
     get() {
@@ -112,18 +142,9 @@ const strokeOpacityDisplay = computed({
     }
 })
 
-const onItemClick = (index: number) => {
-    activeIndex.value = index
-}
+
 
 const onColorItemClick = (index: number) => {
-    // if (effectStore.currentTextEffect !== "none" && effectStore.currentTextEffect !== "rgb-glitch") {
-    //     uni.showToast({
-    //         title: `${effectStore.currentTextEffect}特效已占用颜色功能，请先关闭文字特效`,
-    //         icon: "none"
-    //     })
-    //     return
-    // }
     store.updateColor(index)
 }
 
@@ -136,18 +157,18 @@ const onSizeChange = (value: number) => {
  * @param e 
  */
 const handleStrokeChange = (e: any) => {
-    if (effectStore.currentTextEffect !== "none") {
-        uni.showToast({
-            title: "当前特效已占用描边功能，请先关闭文字特效",
-            icon: "none"
-        })
+    // if (effectStore.currentTextEffect !== "none") {
+    //     uni.showToast({
+    //         title: "当前特效已占用描边功能，请先关闭文字特效",
+    //         icon: "none"
+    //     })
 
-        isStrokeEnabled.value = true
-        nextTick(() => {
-            isStrokeEnabled.value = false
-        })
-        return
-    }
+    //     isStrokeEnabled.value = true
+    //     nextTick(() => {
+    //         isStrokeEnabled.value = false
+    //     })
+    //     return
+    // }
 
     isStrokeEnabled.value = e.detail.value
 }
@@ -158,7 +179,6 @@ const handleStrokeChange = (e: any) => {
  */
 const onStrokeColorClick = (index: number) => {
     store.updateStrokeColor(index)
-    console.log("描边颜色")
 }
 
 /**

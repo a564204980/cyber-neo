@@ -8,7 +8,8 @@
         transition: isDragging ? 'none' : 'height 0.2s',
         paddingTop: isFullscreen ? '0' : '170rpx'
       }">
-        <DanmuBoard class="w-full h-full" :text="danmuText" :rotation="danmuRotation" :is-paused="animStore.isPause" />
+        <DanmuBoard class="w-full h-full" :text="appStore.danmuText" :rotation="danmuRotation"
+          :is-paused="animStore.isPause" />
       </view>
 
 
@@ -32,12 +33,14 @@
         </view>
 
         <!-- ControlPanel 自动填满剩余空间，且 height:0 确保内部滚动正常 -->
-        <ControlPanel v-show="!isFullscreen" @send="onSend" :value="danmuText" class="flex-1 h-0"
+        <ControlPanel v-show="!isFullscreen" @send="onSend" :value="appStore.danmuText" class="flex-1 h-0"
           :parentHeight="controlPanelHeight" />
       </view>
     </view>
 
     <GlobalPopup ref="popupRef" />
+
+    <!-- <button open-type="feedback">意见反馈</button> -->
 
   </view>
 </template>
@@ -47,16 +50,17 @@ import DanmuBoard from '@/components/DanmuBoard.vue';
 import CustomNavBar from '@/components/CustomNavBar.vue';
 import ControlPanel from '@/components/control-panel/ControlPanel.vue';
 import GlobalPopup from '@/components/common/GlobalPopup.vue';
-import { usePopupStore, useAnimStore } from '@/stores';
+import { usePopupStore, useAnimStore, useAppStore } from '@/stores';
 import { computed, getCurrentInstance, onMounted, ref, watch } from 'vue';
 import { getRects } from '@/utils';
 
 const animStore = useAnimStore()
 const popupStore = usePopupStore()
+const appStore = useAppStore()
 const instance = getCurrentInstance()
 
 const popupRef = ref()
-const danmuText = ref<string>()
+const danmuText = undefined  // 已移到 appStore.danmuText
 const panelHeightPercent = ref<number>(70) // 定义面板的初始高度比例
 const startY = ref<number>(0) // 记录触摸开始时的Y坐标
 const startHeight = ref<number>(0) // 记录触摸起始时的面板高度
@@ -112,7 +116,7 @@ const controlPanelStyle = computed(() => {
 })
 
 const onSend = (value: string) => {
-  danmuText.value = value
+  appStore.danmuText = value
 }
 
 // 触摸开始

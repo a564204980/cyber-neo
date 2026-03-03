@@ -44,14 +44,15 @@
 import { computed, getCurrentInstance, onMounted, ref } from 'vue';
 import Slider from './Slider.vue';
 import { getRects } from "@/utils"
-import { usePopupStore, useStyleStore } from "@/stores";
+import { useEffectStore, usePopupStore, useStyleStore } from "@/stores";
 
 const props = defineProps<{
-    data?: { target: 'text' | 'stroke' }
+    data?: { target: 'text' | 'stroke' | 'neon-border' | 'bg' }
 }>()
 
 const popupStore = usePopupStore()
 const styleStore = useStyleStore()
+const effectStore = useEffectStore()
 
 
 const emit = defineEmits(["confirm", "cancel"])
@@ -95,7 +96,7 @@ const canvasStyle = computed(() => {
 
 
 const updateCanvsRect = async () => {
-    const res: UniApp.NodeInfo[] = await getRects(".color-canvas", instance)
+    const res = await getRects(".color-canvas", instance)
     if (res?.[0]) {
         canvasRect = res[0] as any
     }
@@ -179,9 +180,12 @@ const onConfirm = () => {
 
     if (props.data?.target === "stroke") {
         styleStore.updateStrokeCustomColor(data)
+    } else if (props.data?.target === "neon-border") {
+        effectStore.updateNeonBorderColor(color)
+    } else if (props.data?.target === "bg") {
+        styleStore.updateBgColor(color)
     } else {
         styleStore.updateCustomColor(data)
-
     }
 
     popupStore.close()
@@ -214,7 +218,9 @@ const initColorFromStore = () => {
         saturation.value = config.custom.saturation
         lightness.value = config.custom.lightness
         alpha.value = config.custom.alpha
-    } else {
+    }
+
+    else {
         hue.value = 0
         saturation.value = 100
         lightness.value = 50

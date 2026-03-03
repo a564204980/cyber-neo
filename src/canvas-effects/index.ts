@@ -5,10 +5,15 @@ import {
   EmberTheme,
   FlowDirection,
   GlitchStyle,
+  GridStyle,
   LineDashStyle,
+  MatrixColorTheme,
 } from "@/types/effect";
 import { drawHollowPulse } from "./hollowPulse";
 import { drawFloatingEmbers } from "./floatingEmbers";
+import { drawMatrixRain } from "./matrixRain";
+import { drawDynamicGrid } from "./dynamicGrid";
+import { drawNeonBorder } from "./neonBorder";
 
 /**
  * canvas特效绘制上下文
@@ -39,7 +44,16 @@ export interface DrawContext {
     lineStyle?: LineDashStyle; // 描边虚实
     particleCount?: number; // 粒子数量
     size?: number; // 大小
+    density?: number; // 列密度
+    fontSize?: number; // 字符大小
+    gridSize?: number; // 网格大小
+    perspective?: number; // 透视强度
+    colorTheme?: GridStyle | MatrixColorTheme; // 主色调风格
+    dotCount?: number; // 圆点数量
+    dotSize?: number; // 圆点大小
+    cornerRadius?: number; // 圆角半径
     theme?: EmberTheme; // 主题
+    color?: string; // 颜色
   };
 }
 
@@ -49,4 +63,7 @@ export const effectDrawers: Record<string, (ctx: DrawContext) => void> = {
   "rgb-glitch": drawRgbGlitch,
   "hollow-pulse": drawHollowPulse,
   "floating-embers": drawFloatingEmbers,
+  "matrix-rain": drawMatrixRain,
+  "dynamic-grid": drawDynamicGrid,
+  "neon-border": drawNeonBorder,
 };

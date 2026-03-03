@@ -1,14 +1,15 @@
 <template>
     <view @click="handleClose" class="page">
-        <DanmuBoard class="w-full h-full" :text="'我是弹幕'" :rotation="90" :is-paused="animStore.isPause" />
+        <DanmuBoard class="w-full h-full" :text="appStore.danmuText" :rotation="90" :is-paused="animStore.isPause" />
     </view>
 </template>
 
 <script setup lang="ts">
 import DanmuBoard from '@/components/DanmuBoard.vue';
-import { useAnimStore } from '@/stores';
+import { useAnimStore, useAppStore } from '@/stores';
 
 const animStore = useAnimStore()
+const appStore = useAppStore()
 
 const handleClose = () => {
     uni.redirectTo({
@@ -16,6 +17,7 @@ const handleClose = () => {
     })
 }
 </script>
+
 
 <style lang="scss" scoped>
 .page {

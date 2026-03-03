@@ -3,29 +3,30 @@
         <scroll-view scroll-y class="settings-scroll">
             <view class="settings-wrapper">
                 <view class="flex items-center justify-between settings-container">
-                    <view class="active-bg" :style="{ transform: `translateX(${activeIndex * 100}%)` }"></view>
+                    <view class="active-bg" :style="{ transform: `translateX(${effectStore.activeTabIndex * 100}%)` }">
+                    </view>
                     <view v-for="(item, index) in list" :key="item.value" @click="onItemClick(index)"
-                        class="item font-bold " :class="index === activeIndex ? 'active' : 'text-secondary'">{{
+                        class="item font-bold "
+                        :class="index === effectStore.activeTabIndex ? 'active' : 'text-secondary'">{{
                             item.label
                         }}
                     </view>
                 </view>
             </view>
 
-            <TextEffectPanel v-if="activeIndex === 0" />
-            <CanvasEffectPanel v-if="activeIndex === 1" />
+            <TextEffectPanel v-if="effectStore.activeTabIndex === 0" />
+            <CanvasEffectPanel v-if="effectStore.activeTabIndex === 1" />
         </scroll-view>
     </view>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
 import TextEffectPanel from './TextEffectComponents/TextEffectPanel.vue';
 import CanvasEffectPanel from './TextEffectComponents/CanvasEffectPanel.vue';
 
+import { useEffectStore } from '@/stores';
 
-
-const activeIndex = ref<number>(0)
+const effectStore = useEffectStore()
 
 const list = [
     { label: "文字动效", value: "text" },
@@ -33,7 +34,7 @@ const list = [
 ]
 
 const onItemClick = (index: number) => {
-    activeIndex.value = index
+    effectStore.updateActiveTabIndex(index)
 }
 </script>
 

@@ -1,4 +1,4 @@
-export type Direction = "left" | "right" | "up" | "down";
+export type Direction = "left" | "right" | "up" | "down" | "none";
 
 // 动画效果
 export type Effect = "zoom" | "shake" | "wave" | "jump" | "none";

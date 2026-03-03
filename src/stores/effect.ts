@@ -9,14 +9,19 @@ import type {
   RgbGlitchConfig,
   HollowPulseConfig,
   FloatingEmbersConfig,
+  MatrixRainConfig,
+  DynamicGridConfig,
+  NeonBorderConfig,
 } from "@/types/effect";
 
 export const useEffectStore = defineStore(
   "effect",
   () => {
-    // 当前激活特效
     const currentTextEffect = ref<TextEffectType>("neon-flow");
     const currentCanvasEffect = ref<CanvasEffectType>("floating-embers");
+
+    // 记录设置面板当前 Tab 索引 (0: 文字动效, 1: 背景特效)
+    const activeTabIndex = ref<number>(0);
 
     // 霓虹流光配置
     const neonFlowConfig = ref<NeonFlowConfig>({
@@ -74,6 +79,36 @@ export const useEffectStore = defineStore(
       theme: "warm",
     });
 
+    // 代码雨配置
+    const matrixRainConfig = ref<MatrixRainConfig>({
+      enabled: true,
+      speed: 5,
+      density: 20,
+      fontSize: 14,
+      colorTheme: "green",
+    });
+
+    // 动态网格配置
+    const dynamicGridConfig = ref<DynamicGridConfig>({
+      enabled: true,
+      speed: 5,
+      gridSize: 40,
+      perspective: 120,
+      glowIntensity: 10,
+      colorTheme: "synthwave",
+    });
+
+    // 霓虹边框配置
+    const neonBorderConfig = ref<NeonBorderConfig>({
+      enabled: true,
+      dotCount: 60,
+      dotSize: 5,
+      speed: 2,
+      glowIntensity: 15,
+      cornerRadius: 16,
+      color: "#ff003c",
+    });
+
     const updateTextEffect = (type: TextEffectType) => {
       currentTextEffect.value = type;
     };
@@ -81,6 +116,26 @@ export const useEffectStore = defineStore(
     // 更新背景特效
     const updateCanvasEffect = (type: CanvasEffectType = "floating-embers") => {
       currentCanvasEffect.value = type;
+    };
+
+    // 更新设置面板索引
+    const updateActiveTabIndex = (index: number) => {
+      activeTabIndex.value = index;
+    };
+
+    // 更新动态网格配置
+    const updateDynamicGridConfig = (config: DynamicGridConfig) => {
+      dynamicGridConfig.value = config;
+    };
+
+    // 更新霓虹边框配置
+    const updateNeonBorderConfig = (config: NeonBorderConfig) => {
+      neonBorderConfig.value = config;
+    };
+
+    // 更新霓虹边框颜色
+    const updateNeonBorderColor = (color: string) => {
+      neonBorderConfig.value.color = color;
     };
 
     return {
@@ -93,6 +148,14 @@ export const useEffectStore = defineStore(
       hollowPulseConfig,
       floatingEmbersConfig,
       updateCanvasEffect,
+      matrixRainConfig,
+      activeTabIndex,
+      updateActiveTabIndex,
+      dynamicGridConfig,
+      updateDynamicGridConfig,
+      neonBorderConfig,
+      updateNeonBorderConfig,
+      updateNeonBorderColor,
     };
   },
   {

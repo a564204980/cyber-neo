@@ -1,8 +1,9 @@
 <template>
-    <view class="danmu-board">
+    <view class="danmu-board" :style="{ background: store.bgColor }">
         <!-- 背景特效层 -->
-        <CanvasRender v-if="hasCanvasBg" class="cosmic-bg" :effectType="effectStore.currentCanvasEffect" text=""
-            :fontSize="0" :config="effectStore.floatingEmbersConfig" :rotation="props.rotation" />
+        <CanvasRender v-if="hasCanvasBg" :key="`bg-${props.rotation}`" class="cosmic-bg"
+            :effectType="effectStore.currentCanvasEffect" text="" :fontSize="0" :config="canvasBgConfig"
+            :rotation="props.rotation" />
         <!-- 文字特效层 -->
         <CanvasRender v-if="isCanvasEffect" :effectType="effectStore.currentTextEffect" :text="displayText"
             :fontSize="fontPx" :isPaused="props.isPaused" :direction="animStore.direction" :config="canvasEffectConfig"
@@ -33,20 +34,22 @@ const effectStore = useEffectStore()
 
 const showDanmu = ref(true);
 
+// 文字特效
 const isCanvasEffect = computed(() => {
     if (effectStore.currentTextEffect === 'neon-flow') return effectStore.neonFlowConfig.enabled
     if (effectStore.currentTextEffect === 'neon-flicker') return effectStore.neonFlickerConfig.enabled
     if (effectStore.currentTextEffect === 'rgb-glitch') return effectStore.rgbGlitchConfig.enabled
     if (effectStore.currentTextEffect === 'hollow-pulse') return effectStore.hollowPulseConfig.enabled
+
     return false
 })
 
+// canvas特效配置
 const canvasEffectConfig = computed(() => {
     if (effectStore.currentTextEffect === 'neon-flow') return effectStore.neonFlowConfig
     if (effectStore.currentTextEffect === 'neon-flicker') return effectStore.neonFlickerConfig
     if (effectStore.currentTextEffect === 'rgb-glitch') return effectStore.rgbGlitchConfig
     if (effectStore.currentTextEffect === 'hollow-pulse') return effectStore.hollowPulseConfig
-
     return {}
 })
 
@@ -174,11 +177,21 @@ const animStyle = computed(() => {
     }
 
     const direction = animStore.direction
-    const animNameMap = {
+    const animNameMap: Partial<Record<typeof direction, string>> = {
         left: "scroll-left",
         right: "scroll-right",
         up: "scroll-up",
-        down: "scroll-down"
+        down: "scroll-down",
+        none: "none",
+    }
+
+    if (direction === 'none') {
+        return {
+            left: "50%",
+            top: baseTop,
+            transform: 'translateX(-50%) translateY(-50%)',
+            animationName: 'none',
+        } as CSSProperties
     }
 
     return {
@@ -189,6 +202,7 @@ const animStyle = computed(() => {
         animationIterationCount: 'infinite'
     }
 })
+
 
 // 弹幕文字内容
 const displayText = computed(() => {
@@ -276,7 +290,26 @@ const currentAnimParams = computed(() => {
 
 // 是否有背景特效
 const hasCanvasBg = computed(() => {
-    return effectStore.currentCanvasEffect === 'floating-embers'
+    const effect = effectStore.currentCanvasEffect
+    const enabledMap: Record<string, boolean> = {
+        'floating-embers': effectStore.floatingEmbersConfig.enabled,
+        'matrix-rain': effectStore.matrixRainConfig.enabled,
+        'dynamic-grid': effectStore.dynamicGridConfig.enabled,
+        'neon-border': effectStore.neonBorderConfig.enabled,
+    }
+
+    return !!enabledMap[effect]
+})
+
+
+// 背景特效配置
+const canvasBgConfig = computed(() => {
+    const effect = effectStore.currentCanvasEffect
+    if (effect === 'floating-embers') return effectStore.floatingEmbersConfig
+    if (effect === 'matrix-rain') return effectStore.matrixRainConfig
+    if (effect === 'dynamic-grid') return effectStore.dynamicGridConfig
+    if (effect === 'neon-border') return effectStore.neonBorderConfig
+    return {}
 })
 
 

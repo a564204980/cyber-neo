@@ -36,6 +36,8 @@ export const useStyleStore = defineStore(
     });
 
     const colorList = ref([...DEFAULT_COLOR_PRESETS]);
+    const bgColor = ref<string>("#000000"); // 画布背景色
+    const styleTabIndex = ref<number>(0); // 文字样式/画布样式 tab
 
     /**
      * 获取当前颜色
@@ -163,12 +165,18 @@ export const useStyleStore = defineStore(
       strokeConfig.value.blur = Math.min(Math.max(Number(blur), min), max);
     };
 
+    const updateBgColor = (color: string) => {
+      bgColor.value = color;
+    };
+
     return {
       // 状态
       fontSize,
       colorConfig,
       strokeConfig,
       colorList,
+      bgColor,
+      styleTabIndex,
       // 计算属性
       currentColor,
       currentStroke,
@@ -182,6 +190,7 @@ export const useStyleStore = defineStore(
       updateStrokeOpacity,
       updateStrokeCustomColor,
       updateStrokeBlur,
+      updateBgColor,
 
       MIN_FONT_SIZE: SYSTEM_CONSTRATNTS.fontSize.min,
       MAX_FONT_SIZE: SYSTEM_CONSTRATNTS.fontSize.max,
