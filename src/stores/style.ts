@@ -38,6 +38,7 @@ export const useStyleStore = defineStore(
     const colorList = ref([...DEFAULT_COLOR_PRESETS]);
     const bgColor = ref<string>("#000000"); // 画布背景色
     const styleTabIndex = ref<number>(0); // 文字样式/画布样式 tab
+    const isBgColorEnabled = ref<boolean>(false);
 
     /**
      * 获取当前颜色
@@ -165,8 +166,14 @@ export const useStyleStore = defineStore(
       strokeConfig.value.blur = Math.min(Math.max(Number(blur), min), max);
     };
 
+    // 设置画布背景色
     const updateBgColor = (color: string) => {
       bgColor.value = color;
+    };
+
+    // 设置画布背景色开关
+    const updateBgColorEnabled = (enabled: boolean) => {
+      isBgColorEnabled.value = enabled;
     };
 
     return {
@@ -177,6 +184,7 @@ export const useStyleStore = defineStore(
       colorList,
       bgColor,
       styleTabIndex,
+      isBgColorEnabled,
       // 计算属性
       currentColor,
       currentStroke,
@@ -191,6 +199,7 @@ export const useStyleStore = defineStore(
       updateStrokeCustomColor,
       updateStrokeBlur,
       updateBgColor,
+      updateBgColorEnabled,
 
       MIN_FONT_SIZE: SYSTEM_CONSTRATNTS.fontSize.min,
       MAX_FONT_SIZE: SYSTEM_CONSTRATNTS.fontSize.max,
@@ -210,5 +219,5 @@ export const useStyleStore = defineStore(
         setItem: (key: string, value: string) => uni.setStorageSync(key, value),
       },
     },
-  } as any
+  } as any,
 );
