@@ -4,7 +4,7 @@ import { DEFAULT_COLOR_PRESETS } from "@/config/color-presets";
 import type { CustomColorData, ColorConfig, StrokeConfig } from "@/types/style";
 
 const SYSTEM_CONSTRATNTS = {
-  fontSize: { min: 50, max: 260, unit: "rpx" },
+  fontSize: { min: 50, max: 300, unit: "rpx" },
   strokeWidth: { min: 0, max: 10, unit: "rpx" },
   strokeOpacity: { min: 0, max: 1, step: 0.1 },
   textLength: { max: 50 },
@@ -38,6 +38,11 @@ export const useStyleStore = defineStore(
     const colorList = ref([...DEFAULT_COLOR_PRESETS]);
     const bgColor = ref<string>("#000000"); // 画布背景色
     const styleTabIndex = ref<number>(0); // 文字样式/画布样式 tab
+    const isMultiLine = ref<boolean>(false); // 是否多行文本
+
+    const maxFontSize = computed(() => {
+      return isMultiLine.value ? 300 : 360;
+    });
 
     /**
      * 获取当前颜色
@@ -100,7 +105,8 @@ export const useStyleStore = defineStore(
      * @param size
      */
     const updateSize = (size: number) => {
-      const { min, max } = SYSTEM_CONSTRATNTS.fontSize;
+      const min = SYSTEM_CONSTRATNTS.fontSize.min;
+      const max = maxFontSize.value;
       fontSize.value = Math.min(Math.max(size, min), max);
     };
 
@@ -169,6 +175,15 @@ export const useStyleStore = defineStore(
       bgColor.value = color;
     };
 
+    const updateMultiLine = (val: boolean) => {
+      isMultiLine.value = val;
+      // 切换模式时，如果当前字号超过了新模式的最大值，需要缩减
+      const max = maxFontSize.value;
+      if (fontSize.value > max) {
+        fontSize.value = max;
+      }
+    };
+
     return {
       // 状态
       fontSize,
@@ -177,6 +192,7 @@ export const useStyleStore = defineStore(
       colorList,
       bgColor,
       styleTabIndex,
+      isMultiLine,
       // 计算属性
       currentColor,
       currentStroke,
@@ -191,9 +207,10 @@ export const useStyleStore = defineStore(
       updateStrokeCustomColor,
       updateStrokeBlur,
       updateBgColor,
+      updateMultiLine,
 
       MIN_FONT_SIZE: SYSTEM_CONSTRATNTS.fontSize.min,
-      MAX_FONT_SIZE: SYSTEM_CONSTRATNTS.fontSize.max,
+      MAX_FONT_SIZE: maxFontSize,
       MIN_STROKE_WIDTH: SYSTEM_CONSTRATNTS.strokeWidth.min,
       MAX_STROKE_WIDTH: SYSTEM_CONSTRATNTS.strokeWidth.max,
       MIN_STROKE_OPACITY: SYSTEM_CONSTRATNTS.strokeOpacity.min,

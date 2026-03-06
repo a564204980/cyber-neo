@@ -164,7 +164,15 @@ export const drawNeonFlow = ({
   ctx.shadowBlur = glowIntensity * 3 * breathe;
   ctx.globalAlpha = 0.7 + 0.3 * breathe;
 
-  ctx.fillText(text, textX, textY);
+  const lines = text.split("\n");
+  const lineHeight = safeFontSize * 1.2;
+  const totalHeight = lines.length * lineHeight;
+
+  lines.forEach((line, i) => {
+    const y = textY - totalHeight / 2 + (i + 0.5) * lineHeight;
+    ctx.fillText(line, textX, y);
+  });
+
   ctx.globalAlpha = 1;
   ctx.shadowBlur = 0;
 };

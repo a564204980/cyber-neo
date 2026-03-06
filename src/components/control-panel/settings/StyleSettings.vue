@@ -30,8 +30,8 @@
 
             <view v-if="store.styleTabIndex === 0" class="size-panel-container">
                 <view class="font-bold size-panel-title">文字大小</view>
-                <Slider @change="onSizeChange" @update:modelValue="onSizeChange" :minSize="store.MIN_FONT_SIZE"
-                    :maxSize="store.MAX_FONT_SIZE" />
+                <Slider @change="onSizeChange" @update:modelValue="onSizeChange" v-model="store.fontSize"
+                    :minSize="store.MIN_FONT_SIZE" :maxSize="store.MAX_FONT_SIZE" />
             </view>
 
             <view v-if="store.styleTabIndex === 0" class="stroke-panel-container">

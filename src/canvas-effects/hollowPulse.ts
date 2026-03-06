@@ -55,13 +55,23 @@ export const drawHollowPulse = ({
   ctx.shadowColor = themeColor;
   ctx.shadowBlur = animatedLineWidth * 3;
 
-  ctx.strokeText(text, textX, textY);
+  const lines = text.split("\n");
+  const lineHeight = safeFontSize * 1.2;
+  const totalHeight = lines.length * lineHeight;
+
+  lines.forEach((line, i) => {
+    const y = textY - totalHeight / 2 + (i + 0.5) * lineHeight;
+    ctx.strokeText(line, textX, y);
+  });
 
   if (heartbeat > 0.8) {
     // 利用globalAlpha填充
     ctx.globalAlpha = (heartbeat - 0.8) * 0.5;
     ctx.fillStyle = themeColor;
-    ctx.fillText(text, textX, textY);
+    lines.forEach((line, i) => {
+      const y = textY - totalHeight / 2 + (i + 0.5) * lineHeight;
+      ctx.fillText(line, textX, y);
+    });
   }
 
   ctx.restore();

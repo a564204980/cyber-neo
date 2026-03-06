@@ -130,6 +130,12 @@ const danmuStyle = computed(() => {
         style.textShadow = 'none'
     }
 
+    if (store.isMultiLine) {
+        style.whiteSpace = 'pre'
+        style.textAlign = 'center'
+        style.lineHeight = '1.2'
+    }
+
     return style
 })
 
@@ -206,7 +212,7 @@ const animStyle = computed(() => {
 
 // 弹幕文字内容
 const displayText = computed(() => {
-    if (animStore.direction === 'right') {
+    if (animStore.direction === 'right' && !store.isMultiLine) {
         return props.text.split('').reverse().join('')
     }
     return props.text
@@ -369,6 +375,7 @@ watch(() => props.rotation, () => {
 .danmu-text {
     font-weight: bold;
     z-index: 99;
+    display: inline-block;
 }
 </style>
 

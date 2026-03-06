@@ -76,7 +76,8 @@ export const useEffectStore = defineStore(
       particleCount: 50,
       speed: 3,
       size: 4,
-      theme: "warm",
+      color: "#ffaa00",
+      pattern: "circle",
     });
 
     // 代码雨配置
@@ -85,7 +86,7 @@ export const useEffectStore = defineStore(
       speed: 5,
       density: 20,
       fontSize: 14,
-      colorTheme: "green",
+      color: "#39ff14",
     });
 
     // 动态网格配置
@@ -95,7 +96,7 @@ export const useEffectStore = defineStore(
       gridSize: 40,
       perspective: 120,
       glowIntensity: 10,
-      colorTheme: "synthwave",
+      color: "#cc00ff",
     });
 
     // 霓虹边框配置
@@ -138,6 +139,18 @@ export const useEffectStore = defineStore(
       neonBorderConfig.value.color = color;
     };
 
+    const updateFloatingEmbersColor = (color: string) => {
+      floatingEmbersConfig.value.color = color;
+    };
+
+    const updateMatrixRainColor = (color: string) => {
+      matrixRainConfig.value.color = color;
+    };
+
+    const updateDynamicGridColor = (color: string) => {
+      dynamicGridConfig.value.color = color;
+    };
+
     return {
       currentTextEffect,
       currentCanvasEffect,
@@ -156,6 +169,9 @@ export const useEffectStore = defineStore(
       neonBorderConfig,
       updateNeonBorderConfig,
       updateNeonBorderColor,
+      updateFloatingEmbersColor,
+      updateMatrixRainColor,
+      updateDynamicGridColor,
     };
   },
   {

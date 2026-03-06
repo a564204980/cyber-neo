@@ -7,14 +7,19 @@
                         <text class="material-icons">format_size</text>
                         <text>文字内容</text>
                         <button open-type="feedback" class="feedback-btn">意见反馈</button>
+                        <button class="multi-line-btn" :class="{ 'multi-line-btn--active': styleStore.isMultiLine }"
+                            @click="onMultiLineClick">多行文本</button>
                     </view>
                     <view class="input-area-head-right text-secondary">{{ `${inputValue.length}/${max}` }}</view>
                 </view>
                 <view class="input-area-body">
-                    <textarea @input="onInput" @confirm="onConfirm" @keydown.enter.prevent="onConfirm"
-                        confirm-type="send" :maxlength="max" :value="inputValue" confirm-hold :show-confirm-bar="false"
-                        class="w-full h-full input-area-body-input" placeholder="请输入弹幕内容"
-                        placeholder-class="input-placeholder" />
+                    <textarea @input="onInput" @confirm="onConfirm"
+                        :confirm-type="styleStore.isMultiLine ? 'return' : 'send'" :maxlength="max" :value="inputValue"
+                        confirm-hold :show-confirm-bar="false" class="w-full h-full input-area-body-input"
+                        placeholder="请输入弹幕内容" placeholder-class="input-placeholder" />
+                    <view class="send-btn flex items-center justify-center" @click="onConfirm">
+                        <text class="material-icons">send</text>
+                    </view>
                 </view>
             </view>
 
@@ -31,6 +36,7 @@ import PanelTabs from "./PanelTabs.vue"
 import Tag from "./Tag.vue"
 import { computed, ref, watch } from 'vue';
 import { useAppStore } from '@/stores/app'
+import { useStyleStore } from '@/stores/style'
 
 interface Props {
     value?: string,
@@ -40,6 +46,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const appStore = useAppStore()
+const styleStore = useStyleStore()
 
 const emits = defineEmits(["send"])
 
@@ -73,9 +80,12 @@ const onConfirm = () => {
 
 
 const onTagClick = (item: { label: string }) => {
-    console.log("inputValue", item)
     inputValue.value = item.label
     emits("send", inputValue.value)
+}
+
+const onMultiLineClick = () => {
+    styleStore.updateMultiLine(!styleStore.isMultiLine)
 }
 
 
@@ -137,10 +147,33 @@ const onTagClick = (item: { label: string }) => {
     background-color: #262626;
     border-radius: 20rpx;
     padding: 20rpx;
+    position: relative;
 }
 
 .input-area-body-input {
     color: #fff;
+    width: calc(100% - 100rpx);
+}
+
+.send-btn {
+    position: absolute;
+    right: 15rpx;
+    bottom: 15rpx;
+    width: 80rpx;
+    height: 80rpx;
+    background: #7c3aed;
+    color: #fff;
+    border-radius: 16rpx;
+    box-shadow: 0 4rpx 12rpx rgba(124, 58, 237, 0.3);
+
+    .material-icons {
+        font-size: 40rpx;
+    }
+
+    &:active {
+        transform: scale(0.95);
+        background: #6d28d9;
+    }
 }
 
 .tag-container {
@@ -156,6 +189,29 @@ const onTagClick = (item: { label: string }) => {
     height: 48rpx;
     line-height: 48rpx;
     border: none;
+
+    &::after {
+        border: none;
+    }
+}
+
+.multi-line-btn {
+    font-size: 22rpx;
+    color: rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 30rpx;
+    padding: 0 20rpx;
+    height: 48rpx;
+    line-height: 48rpx;
+    border: none;
+    margin-left: 10rpx;
+    transition: all 0.3s ease;
+
+    &--active {
+        background: #7c3aed;
+        color: #fff;
+        box-shadow: 0 0 10rpx rgba(124, 58, 237, 0.4);
+    }
 
     &::after {
         border: none;

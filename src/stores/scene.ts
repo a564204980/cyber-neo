@@ -8,7 +8,7 @@ import { useEffectStore } from "./effect";
 
 export const useSceneStore = defineStore("scene", () => {
   // 记录当前激活的场景，null 表示「无预设 / 自定义」
-  const activeSceneId = ref<SceneId | null>(null);
+  const activeSceneId = ref<SceneId | null>("default");
 
   /**
    * 一键应用场景预设
@@ -32,6 +32,8 @@ export const useSceneStore = defineStore("scene", () => {
       styleStore.updateSize(preset.style.fontSize);
     if (preset.style?.colorPresetIndex !== undefined)
       styleStore.updateColor(preset.style.colorPresetIndex);
+    if (preset.style?.bgColor !== undefined)
+      styleStore.updateBgColor(preset.style.bgColor);
 
     // 动画方向
     if (preset.anim?.direction !== undefined)
@@ -54,16 +56,7 @@ export const useSceneStore = defineStore("scene", () => {
     if (preset.effect?.canvasEffect !== undefined)
       effectStore.updateCanvasEffect(preset.effect.canvasEffect);
 
-    // 主题色调
-    const cfg = preset.effectConfig;
-    if (cfg) {
-      if (cfg.embersTheme !== undefined)
-        effectStore.floatingEmbersConfig.theme = cfg.embersTheme;
-      if (cfg.matrixColorTheme !== undefined)
-        effectStore.matrixRainConfig.colorTheme = cfg.matrixColorTheme;
-      if (cfg.gridColorTheme !== undefined)
-        effectStore.dynamicGridConfig.colorTheme = cfg.gridColorTheme;
-    }
+    // 主题色调不再需要，现已改为颜色面板选择
 
     // 描边
     const stroke = preset.stroke;

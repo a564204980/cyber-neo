@@ -22,6 +22,7 @@ interface TagItem {
 }
 
 const tagList: TagItem[] = [
+    { id: "default", label: "默认" },
     { id: 'concert', label: '🎤 演唱会应援' },
     { id: 'airport', label: '✈️ 接机举牌' },
     // { id: 'birthday', label: '🎂 生日表白模式' },

@@ -11,25 +11,17 @@ const CHAR_POOL =
 const randomChar = () =>
   CHAR_POOL[Math.floor(Math.random() * CHAR_POOL.length)];
 
-const themeColorMap: Record<
-  string,
-  { head: string; body: string; bg: string }
-> = {
-  green: {
-    head: "#ffffff", // 最前端的字符：纯白高亮
-    body: "#00ff41", // 拖尾主体：经典 Matrix 绿
-    bg: "rgba(0, 0, 0, 0.15)", // 每帧覆盖的黑纱（现在只用来清理极旧的残影）
-  },
-  amber: {
-    head: "#ffffff",
-    body: "#ffb000", // 琥珀终端色
-    bg: "rgba(0, 0, 0, 0.15)",
-  },
-  cyber: {
-    head: "#ffffff",
-    body: "#00f0ff", // 赛博冰蓝
-    bg: "rgba(0, 0, 0, 0.15)",
-  },
+/**
+ * 将十六进制颜色转换为 RGBA，带透明度
+ */
+const hexToRgba = (hex: string, alpha: number) => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result
+    ? `rgba(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(
+        result[3],
+        16
+      )}, ${alpha})`
+    : `rgba(255, 255, 255, ${alpha})`;
 };
 
 export const drawMatrixRain = ({ ctx, W, H, config }: DrawContext) => {
@@ -37,7 +29,7 @@ export const drawMatrixRain = ({ ctx, W, H, config }: DrawContext) => {
   const speed = Number(config?.speed) || 5;
   const density = Number(config?.density) || 20;
   const charSize = Number(config?.fontSize) || 14;
-  const theme = config?.colorTheme || "green";
+  const mainColor = config?.color || "#39ff14";
 
   const RW = W;
   const RH = H;
@@ -53,10 +45,8 @@ export const drawMatrixRain = ({ ctx, W, H, config }: DrawContext) => {
     }
   }
 
-  const colors = themeColorMap[theme] || themeColorMap["green"];
-
-  // 覆盖一层黑纱（比之前厚，让极旧的残影更快消退，视觉更干净）
-  ctx.fillStyle = colors.bg;
+  // 覆盖一层黑纱
+  ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
   ctx.fillRect(0, 0, RW, RH);
 
   ctx.font = `${charSize}px monospace`;
@@ -70,8 +60,8 @@ export const drawMatrixRain = ({ ctx, W, H, config }: DrawContext) => {
     const y = columns[i];
 
     ctx.globalAlpha = 1.0;
-    ctx.fillStyle = colors.head;
-    ctx.shadowColor = colors.body;
+    ctx.fillStyle = "#ffffff";
+    ctx.shadowColor = mainColor;
     ctx.shadowBlur = charSize * 2;
     ctx.fillText(randomChar(), x, y);
     ctx.shadowBlur = 0;
@@ -82,7 +72,7 @@ export const drawMatrixRain = ({ ctx, W, H, config }: DrawContext) => {
       // 越靠尾部越透明，从 0.9 线性降至接近 0
       const alpha = (1 - j / (TAIL_LENGTH + 1)) * 0.95;
       ctx.globalAlpha = Math.max(0, alpha);
-      ctx.fillStyle = colors.body;
+      ctx.fillStyle = mainColor;
       ctx.fillText(randomChar(), x, tailY);
     }
 

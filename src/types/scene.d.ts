@@ -8,6 +8,7 @@ import type {
 } from "./effect";
 
 export type SceneId =
+  | "default" // 默认
   | "concert" // 🎤 演唱会应援模式
   | "airport" // ✈️ 接机举牌模式
   | "birthday" // 🎂 生日表白模式
@@ -28,6 +29,7 @@ export interface ScenePreset {
   style?: {
     fontSize?: number;
     colorPresetIndex?: number;
+    bgColor?: string;
   };
   stroke?: {
     enabled?: boolean; // 是否开启描边

@@ -34,11 +34,18 @@
                 </view>
 
                 <view class="param-row">
-                    <view class="font-bold text-secondary mb-2">类型</view>
+                    <view class="font-bold text-secondary mb-2">背景颜色</view>
+                    <ColorPicker :colorPanelList="colorPanelList" :activeColorIndex="floatingEmbersColorIndex"
+                        @colorClick="onFloatingEmbersColorClick"
+                        @customColorClick="onCustomColorClick('floating-embers')" :size="60" />
+                </view>
+
+                <view class="param-row">
+                    <view class="font-bold text-secondary mb-2">图案类型</view>
                     <scroll-view scroll-x enable-flex class="grid-container">
                         <view class="preset-list">
-                            <view v-for="opt in themeOptions" :key="opt.value"
-                                :class="{ active: config.theme === opt.value }" @click="handleThemeChange(opt.value)"
+                            <view v-for="opt in patternOptions" :key="opt.value"
+                                :class="{ active: config.pattern === opt.value }" @click="config.pattern = opt.value"
                                 class="preset-item">
                                 <view class="icon material-icons" style="margin-right:8rpx">{{ opt.icon }}</view>
                                 <text class="label">{{ opt.label }}</text>
@@ -64,16 +71,9 @@
                 </view>
                 <view class="param-row">
                     <view class="font-bold text-secondary mb-2">终端配色</view>
-                    <scroll-view scroll-x enable-flex class="grid-container">
-                        <view class="preset-list">
-                            <view v-for="opt in matrixThemeOptions" :key="opt.value"
-                                :class="{ active: matrixConfig.colorTheme === opt.value }"
-                                @click="matrixConfig.colorTheme = opt.value" class="preset-item">
-                                <view class="icon material-icons" style="margin-right:8rpx">{{ opt.icon }}</view>
-                                <text class="label">{{ opt.label }}</text>
-                            </view>
-                        </view>
-                    </scroll-view>
+                    <ColorPicker :colorPanelList="colorPanelList" :activeColorIndex="matrixRainColorIndex"
+                        @colorClick="onMatrixRainColorClick" @customColorClick="onCustomColorClick('matrix-rain')"
+                        :size="60" />
                 </view>
             </view>
 
@@ -93,16 +93,9 @@
                 </view>
                 <view class="param-row">
                     <view class="font-bold text-secondary mb-2">终端配色</view>
-                    <scroll-view scroll-x enable-flex class="grid-container">
-                        <view class="preset-list">
-                            <view v-for="opt in gridStyleOptions" :key="opt.value"
-                                :class="{ active: dynamicGridConfig.colorTheme === opt.value }"
-                                @click="dynamicGridConfig.colorTheme = opt.value" class="preset-item">
-                                <view class="icon material-icons" style="margin-right:8rpx">{{ opt.icon }}</view>
-                                <text class="label">{{ opt.label }}</text>
-                            </view>
-                        </view>
-                    </scroll-view>
+                    <ColorPicker :colorPanelList="colorPanelList" :activeColorIndex="dynamicGridColorIndex"
+                        @colorClick="onDynamicGridColorClick" @customColorClick="onCustomColorClick('dynamic-grid')"
+                        :size="60" />
                 </view>
             </view>
 
@@ -127,7 +120,8 @@
                     </view>
                     <view class="font-bold text-secondary mb-2">边框颜色</view>
                     <ColorPicker :colorPanelList="colorPanelList" :activeColorIndex="strokeColorIndex"
-                        @colorClick="onStrokeColorClick" @customColorClick="onCustomColorClick()" :size="60" />
+                        @colorClick="onStrokeColorClick" @customColorClick="onCustomColorClick('neon-border')"
+                        :size="60" />
                 </view>
             </view>
         </view>
@@ -138,7 +132,7 @@
 import { computed } from 'vue'
 import { storeToRefs } from 'pinia';
 import { useEffectStore, usePopupStore, useStyleStore } from '@/stores'
-import type { EmberTheme, GridStyle, MatrixColorTheme } from '@/types/effect';
+import type { EmberPattern, EmberTheme, GridStyle, MatrixColorTheme } from '@/types/effect';
 import Slider from '@/components/common/Slider.vue'
 import ColorPicker from '@/components/control-panel/common/ColorPicker.vue';
 
@@ -177,6 +171,24 @@ const strokeColorIndex = computed(() => {
     )
 })
 
+const floatingEmbersColorIndex = computed(() => {
+    return colorPanelList.findIndex(
+        (c) => c.color === effectStore.floatingEmbersConfig.color
+    )
+})
+
+const matrixRainColorIndex = computed(() => {
+    return colorPanelList.findIndex(
+        (c) => c.color === effectStore.matrixRainConfig.color
+    )
+})
+
+const dynamicGridColorIndex = computed(() => {
+    return colorPanelList.findIndex(
+        (c) => c.color === effectStore.dynamicGridConfig.color
+    )
+})
+
 const handleEffectSelect = (value: any) => {
     effectStore.updateCanvasEffect(value)
 }
@@ -195,39 +207,40 @@ const handleSwitchChange = (e: any) => {
     }
 }
 
-const themeOptions: { label: string, value: EmberTheme, icon: string }[] = [
-    { label: '温情余烬', value: 'warm', icon: 'local_fire_department' },
-    { label: '深海幽萤', value: 'cool', icon: 'waves' },
-    { label: '赛博量子', value: 'cyber', icon: 'blur_on' },
+// 已经不再需要主题选项了，因为已经换成了颜色面板
+const patternOptions: { label: string, value: EmberPattern, icon: string }[] = [
+    { label: '圆形', value: 'circle', icon: 'radio_button_unchecked' },
+    { label: '五角星', value: 'star', icon: 'star' },
+    { label: '爱心', value: 'heart', icon: 'favorite' },
+    { label: '花瓣', value: 'petal', icon: 'local_florist' },
+    { label: '雪花', value: 'snow', icon: 'ac_unit' },
 ]
-
-const matrixThemeOptions: { label: string, value: MatrixColorTheme, icon: string }[] = [
-    { label: '经典绿', value: 'green', icon: 'terminal' },
-    { label: '琥珀终端', value: 'amber', icon: 'computer' },
-    { label: '赛博冰蓝', value: 'cyber', icon: 'ac_unit' },
-]
-
-const gridStyleOptions: { label: string, value: GridStyle, icon: string }[] = [
-    { label: '赛博粉紫', value: 'synthwave', icon: 'grid_view' },
-    { label: '赛博冰蓝', value: 'cyber', icon: 'ac_unit' },
-    { label: '黑客绿', value: 'matrix', icon: 'terminal' },
-    { label: '血红', value: 'hacker', icon: 'warning' },
-]
-
-const handleThemeChange = (val: EmberTheme) => {
-    config.theme = val
-}
 
 const onStrokeColorClick = (index: number) => {
     if (!colorPanelList[index]) return
     effectStore.updateNeonBorderColor(colorPanelList[index].color)
 }
 
+const onFloatingEmbersColorClick = (index: number) => {
+    if (!colorPanelList[index]) return
+    effectStore.updateFloatingEmbersColor(colorPanelList[index].color)
+}
+
+const onMatrixRainColorClick = (index: number) => {
+    if (!colorPanelList[index]) return
+    effectStore.updateMatrixRainColor(colorPanelList[index].color)
+}
+
+const onDynamicGridColorClick = (index: number) => {
+    if (!colorPanelList[index]) return
+    effectStore.updateDynamicGridColor(colorPanelList[index].color)
+}
+
 /**
  * 自定义颜色点击
  */
-const onCustomColorClick = () => {
-    popupStore.open('ColorPicker', { target: 'neon-border' })
+const onCustomColorClick = (target: string) => {
+    popupStore.open('ColorPicker', { target })
 }
 </script>
 

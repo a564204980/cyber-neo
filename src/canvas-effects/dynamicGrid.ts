@@ -2,28 +2,7 @@ import type { DrawContext } from "./index";
 
 let offsetZ = 0;
 
-const themeMap: Record<string, { line: string; glow: string; bg: string }> = {
-  synthwave: {
-    line: "#ff00ff", // 亮粉色
-    glow: "#ff00ff",
-    bg: "rgba(10, 0, 20, 0.4)", // 深紫背景
-  },
-  cyber: {
-    line: "#00f0ff", // 纯青蓝色
-    glow: "#00f0ff",
-    bg: "rgba(0, 10, 20, 0.4)",
-  },
-  matrix: {
-    line: "#00ff41", // 矩阵绿
-    glow: "#00ff41",
-    bg: "rgba(0, 5, 0, 0.4)",
-  },
-  hacker: {
-    line: "#ff0000", // 纯红
-    glow: "#ff0000",
-    bg: "rgba(15, 0, 0, 0.4)",
-  },
-};
+// 移除固定主题，改为使用配置颜色
 
 export const drawDynamicGrid = ({ ctx, W, H, config }: DrawContext) => {
   if (!W || !H || !isFinite(W) || !isFinite(H)) return;
@@ -31,21 +10,21 @@ export const drawDynamicGrid = ({ ctx, W, H, config }: DrawContext) => {
   const gridSize = Number(config?.gridSize) || 40;
   const perspective = Number(config?.perspective) || 120;
   const glowIntensity = Number(config?.glowIntensity) || 10;
-  const themeName = config?.colorTheme || "synthwave";
-  const theme = themeMap[themeName] || themeMap.synthwave;
+  const mainColor = config?.color || "#cc00ff";
+
   // 铺设暗色拖影背景，形成赛博纵深感
-  ctx.fillStyle = theme.bg;
+  ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
   ctx.fillRect(0, 0, W, H);
   ctx.save();
   // 设置地平线位置为屏幕中上部
   const horizonY = H * 0.4;
 
   // 建立发光效果
-  ctx.strokeStyle = theme.line;
+  ctx.strokeStyle = mainColor;
   ctx.lineWidth = 1;
   if (glowIntensity > 0) {
     ctx.shadowBlur = glowIntensity;
-    ctx.shadowColor = theme.glow;
+    ctx.shadowColor = mainColor;
   }
   ctx.beginPath();
 

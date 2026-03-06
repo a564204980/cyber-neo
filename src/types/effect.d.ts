@@ -19,6 +19,7 @@ export type FlowDirection =
   | "diagonal-up"; // 流光方向
 export type GlitchStyle = "subtle" | "chaotic" | "vhs"; // 故障风格 微微发抖 狂暴撕裂 磁带
 export type LineDashStyle = "solid" | "dashed" | "dotted"; // 描边虚实
+export type EmberPattern = "circle" | "star" | "heart" | "petal" | "snow"; // 浮动余烬图案
 export type EmberTheme = "warm" | "cool" | "cyber" | "custom"; // 浮动余烬主题
 export type MatrixColorTheme = "green" | "amber" | "cyber"; // 代码雨的类型经典绿 / 琥珀终端 / 赛博粉蓝
 export type GridStyle = "cyber" | "synthwave" | "matrix" | "hacker"; // 网格样式
@@ -83,7 +84,8 @@ export interface FloatingEmbersConfig {
   particleCount: number; // 粒子数量
   speed: number; // 速度
   size: number; // 大小滑块值
-  theme: EmberTheme; // 主题
+  color: string; // 颜色
+  pattern: EmberPattern; // 图案类型
 }
 
 // 代码雨
@@ -92,7 +94,7 @@ export interface MatrixRainConfig {
   speed: number; // 下落速度 (1-10)
   density: number; // 列密度：值越小列越密集
   fontSize: number; // 字符大小 (px)
-  colorTheme: MatrixColorTheme;
+  color: string;
 }
 
 // 动态网格
@@ -102,7 +104,7 @@ export interface DynamicGridConfig {
   gridSize: number; // 网格大小 (例如 20-100)
   perspective: number; // 透视强度，决定地平线的深度 (例如 50-200)
   glowIntensity: number; // 发光强度 (0-20)
-  colorTheme: GridStyle; // 主色调风格
+  color: string; // 主色调风格
 }
 
 // 霓虹边框配置

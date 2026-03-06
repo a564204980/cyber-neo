@@ -28,10 +28,16 @@ export const drawRgbGlitch = ({
   // 速度越快，触发故障的阈值越低
   const threshold = 1.0 - speed * 0.08;
   const isGlitching = Math.random() > threshold; // 是否触发故障
+  const lines = text.split("\n");
+  const lineHeight = safeFontSize * 1.2;
+  const totalHeight = lines.length * lineHeight;
 
   if (!isGlitching) {
     ctx.fillStyle = baseColor;
-    ctx.fillText(text, textX, textY);
+    lines.forEach((line, i) => {
+      const y = textY - totalHeight / 2 + (i + 0.5) * lineHeight;
+      ctx.fillText(line, textX, y);
+    });
     return;
   }
 
@@ -60,18 +66,27 @@ export const drawRgbGlitch = ({
       ctx.translate(xShift, 0);
       ctx.globalAlpha = 0.8;
       ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
-      ctx.fillText(text, textX, textY + shakeY);
+      lines.forEach((line, j) => {
+        const lineY = textY + shakeY - totalHeight / 2 + (j + 0.5) * lineHeight;
+        ctx.fillText(line, textX, lineY);
+      });
       ctx.globalAlpha = 1;
       ctx.restore(); // 还原刀口，准备切下一刀
     }
 
     // 红色通道错位层
     ctx.fillStyle = "rgba(255, 0, 0, 0.9)";
-    ctx.fillText(text, textX + offsetR, textY + shakeY);
+    lines.forEach((line, i) => {
+      const y = textY + shakeY - totalHeight / 2 + (i + 0.5) * lineHeight;
+      ctx.fillText(line, textX + offsetR, y);
+    });
 
     // 青色通道错位层（红青结合爆出纯白）
     ctx.fillStyle = "rgba(0, 255, 255, 0.9)";
-    ctx.fillText(text, textX - offsetC, textY + shakeY);
+    lines.forEach((line, i) => {
+      const y = textY + shakeY - totalHeight / 2 + (i + 0.5) * lineHeight;
+      ctx.fillText(line, textX - offsetC, y);
+    });
 
     if (style === "vhs" && Math.random() > 0.5) {
       ctx.fillStyle = "rgba(255, 255, 255, " + Math.random() * 0.3 + ")";

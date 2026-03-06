@@ -2,6 +2,7 @@ import { drawNeonFlow } from "./neonFlow";
 import { drawNeonFlicker } from "./neonFlicker";
 import { drawRgbGlitch } from "./rgbGlitch";
 import {
+  EmberPattern,
   EmberTheme,
   FlowDirection,
   GlitchStyle,
@@ -54,6 +55,7 @@ export interface DrawContext {
     cornerRadius?: number; // 圆角半径
     theme?: EmberTheme; // 主题
     color?: string; // 颜色
+    pattern?: EmberPattern; // 图案类型
   };
 }
 

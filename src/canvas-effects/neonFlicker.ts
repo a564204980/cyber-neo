@@ -72,7 +72,15 @@ export const drawNeonFlicker = ({
 
   // 全局明暗叠加
   ctx.globalAlpha = brightness;
-  ctx.fillText(text, textX, textY);
+
+  const lines = text.split("\n");
+  const lineHeight = safeFontSize * 1.2;
+  const totalHeight = lines.length * lineHeight;
+
+  lines.forEach((line, i) => {
+    const y = textY - totalHeight / 2 + (i + 0.5) * lineHeight;
+    ctx.fillText(line, textX, y);
+  });
 
   ctx.globalAlpha = 1;
   ctx.shadowBlur = 0;

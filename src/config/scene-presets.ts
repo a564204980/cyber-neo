@@ -2,6 +2,18 @@ import type { ScenePreset, SceneId } from "@/types/scene";
 
 export const SCENE_PRESETS = [
   {
+    id: "default" as SceneId,
+    label: "我是弹幕",
+    style: {
+      fontSize: 180,
+      colorPresetIndex: 0,
+      bgColor: "#000000",
+    },
+    anim: { direction: "none", effect: "none", speed: 20 },
+    effect: { textEffect: "none", canvasEffect: "none" },
+    effectConfig: {},
+  },
+  {
     id: "concert" as SceneId,
     label: "🎤 演唱会应援",
     style: {
