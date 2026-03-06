@@ -171,6 +171,7 @@ export const useStyleStore = defineStore(
       strokeConfig.value.blur = Math.min(Math.max(Number(blur), min), max);
     };
 
+    // 设置画布背景色
     const updateBgColor = (color: string) => {
       bgColor.value = color;
     };

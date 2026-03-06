@@ -23,8 +23,14 @@
 
             <!-- 画布背景色 -->
             <view v-if="store.styleTabIndex === 1" class="color-panel-container">
-                <view class="font-bold color-panel-title">画布背景色</view>
-                <ColorPicker :colorPanelList="bgColorList" :activeColorIndex="bgColorIndex" @colorClick="onBgColorClick"
+                <view class="font-bold stroke-panel-title flex items-center justify-between">
+                    <view class="font-bold color-panel-title">画布背景色</view>
+                    <switch :checked="store.isBgColorEnabled" @change="handleBgColorChange" color="#ff007f"
+                        style="transform:scale(0.7)" />
+                </view>
+
+                <ColorPicker v-if="store.isBgColorEnabled" :colorPanelList="bgColorList"
+                    :activeColorIndex="bgColorIndex" @colorClick="onBgColorClick"
                     @customColorClick="onBgCustomColorClick" />
             </view>
 
@@ -126,6 +132,8 @@ const isStrokeEnabled = computed({
     }
 })
 
+
+
 const strokeColorIndex = computed(() => {
     if (store.strokeConfig.colorConfig?.type === 'custom') {
         return colorPanelList.length - 1
@@ -150,6 +158,10 @@ const onColorItemClick = (index: number) => {
 
 const onSizeChange = (value: number) => {
     store.updateSize(value)
+}
+
+const handleBgColorChange = (e: any) => {
+    store.updateBgColorEnabled(e?.detail?.value)
 }
 
 /**

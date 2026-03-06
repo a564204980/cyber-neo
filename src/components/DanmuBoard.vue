@@ -1,5 +1,5 @@
 <template>
-    <view class="danmu-board" :style="{ background: store.bgColor }">
+    <view class="danmu-board" :style="{ background: store.isBgColorEnabled ? store.bgColor : 'transparent' }">
         <!-- 背景特效层 -->
         <CanvasRender v-if="hasCanvasBg" :key="`bg-${props.rotation}`" class="cosmic-bg"
             :effectType="effectStore.currentCanvasEffect" text="" :fontSize="0" :config="canvasBgConfig"
@@ -36,20 +36,22 @@ const showDanmu = ref(true);
 
 // 文字特效
 const isCanvasEffect = computed(() => {
-    if (effectStore.currentTextEffect === 'neon-flow') return effectStore.neonFlowConfig.enabled
-    if (effectStore.currentTextEffect === 'neon-flicker') return effectStore.neonFlickerConfig.enabled
-    if (effectStore.currentTextEffect === 'rgb-glitch') return effectStore.rgbGlitchConfig.enabled
-    if (effectStore.currentTextEffect === 'hollow-pulse') return effectStore.hollowPulseConfig.enabled
+    const currentTextEffect = effectStore.currentTextEffect
+    if (currentTextEffect === 'neon-flow') return effectStore.neonFlowConfig.enabled
+    if (currentTextEffect === 'neon-flicker') return effectStore.neonFlickerConfig.enabled
+    if (currentTextEffect === 'rgb-glitch') return effectStore.rgbGlitchConfig.enabled
+    if (currentTextEffect === 'hollow-pulse') return effectStore.hollowPulseConfig.enabled
 
     return false
 })
 
 // canvas特效配置
 const canvasEffectConfig = computed(() => {
-    if (effectStore.currentTextEffect === 'neon-flow') return effectStore.neonFlowConfig
-    if (effectStore.currentTextEffect === 'neon-flicker') return effectStore.neonFlickerConfig
-    if (effectStore.currentTextEffect === 'rgb-glitch') return effectStore.rgbGlitchConfig
-    if (effectStore.currentTextEffect === 'hollow-pulse') return effectStore.hollowPulseConfig
+    const currentTextEffect = effectStore.currentTextEffect
+    if (currentTextEffect === 'neon-flow') return effectStore.neonFlowConfig
+    if (currentTextEffect === 'neon-flicker') return effectStore.neonFlickerConfig
+    if (currentTextEffect === 'rgb-glitch') return effectStore.rgbGlitchConfig
+    if (currentTextEffect === 'hollow-pulse') return effectStore.hollowPulseConfig
     return {}
 })
 
