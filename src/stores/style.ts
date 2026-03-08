@@ -37,6 +37,7 @@ export const useStyleStore = defineStore(
 
     const colorList = ref([...DEFAULT_COLOR_PRESETS]);
     const bgColor = ref<string>("#000000"); // 画布背景色
+    const isBgColorEnabled = ref<boolean>(true); // 画布背景色是否启用
     const styleTabIndex = ref<number>(0); // 文字样式/画布样式 tab
     const isMultiLine = ref<boolean>(false); // 是否多行文本
 
@@ -176,6 +177,11 @@ export const useStyleStore = defineStore(
       bgColor.value = color;
     };
 
+    // 设置画布背景色开关
+    const updateBgColorEnabled = (enabled: boolean) => {
+      isBgColorEnabled.value = enabled;
+    };
+
     const updateMultiLine = (val: boolean) => {
       isMultiLine.value = val;
       // 切换模式时，如果当前字号超过了新模式的最大值，需要缩减
@@ -192,6 +198,7 @@ export const useStyleStore = defineStore(
       strokeConfig,
       colorList,
       bgColor,
+      isBgColorEnabled,
       styleTabIndex,
       isMultiLine,
       // 计算属性
@@ -208,6 +215,7 @@ export const useStyleStore = defineStore(
       updateStrokeCustomColor,
       updateStrokeBlur,
       updateBgColor,
+      updateBgColorEnabled,
       updateMultiLine,
 
       MIN_FONT_SIZE: SYSTEM_CONSTRATNTS.fontSize.min,
